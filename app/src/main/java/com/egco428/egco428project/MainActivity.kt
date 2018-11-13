@@ -11,5 +11,7 @@ class MainActivity : AppCompatActivity() {
 
         var x:Int = 0
         var y:Int = 0
+        var c:Int = 0
+
     }
 }
