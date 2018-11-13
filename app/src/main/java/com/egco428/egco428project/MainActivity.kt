@@ -10,5 +10,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         var x:Int = 0
+        var y:Int = 0
     }
 }
