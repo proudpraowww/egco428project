@@ -22,13 +22,7 @@ class profileStudent : AppCompatActivity(), View.OnClickListener {
 
         historyBtn.setOnClickListener(this)
         paymentBtn.setOnClickListener(this)
-
-        // Write a message to the database
-        val database = FirebaseDatabase.getInstance()
-        val myRef = database.getReference("message")
-
-        myRef.setValue("Hello, World!")
-
+        editBtn.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -54,7 +48,6 @@ class profileStudent : AppCompatActivity(), View.OnClickListener {
             val inflater = layoutInflater
             val convertView = inflater.inflate(R.layout.payment_dialog, null) as View
             alertDialog.setView(convertView)
-            val ten = convertView.findViewById<View>(R.id.cash_100) as ImageView
             val btn = convertView.findViewById<View>(R.id.okBtn) as Button
 
             val check100 = convertView.findViewById<View>(R.id.checkbox_cash100) as CheckBox
@@ -73,6 +66,26 @@ class profileStudent : AppCompatActivity(), View.OnClickListener {
                 if(check500.isChecked){values = values+500}
                 if(check600.isChecked){values = values+600}
                 creditText.text = "Credit : "+values
+                alertDialog.dismiss()
+            }
+            alertDialog.show()
+        }
+        else if(v===editBtn){
+
+            var alertDialog = AlertDialog.Builder(this).create()
+            val inflater = layoutInflater
+            val convertView = inflater.inflate(R.layout.student_edit_dialog, null) as View
+            alertDialog.setView(convertView)
+            var name = convertView.findViewById<View>(R.id.editName) as EditText
+            var surename = convertView.findViewById<View>(R.id.editSurename) as EditText
+            var school = convertView.findViewById<View>(R.id.editSchool) as EditText
+            var tel = convertView.findViewById<View>(R.id.editTel) as EditText
+            var email = convertView.findViewById<View>(R.id.editMail) as EditText
+            var password = convertView.findViewById<View>(R.id.editPassword) as EditText
+            val btn = convertView.findViewById<View>(R.id.okBtn) as Button
+            
+            btn.setOnClickListener {
+
                 alertDialog.dismiss()
             }
             alertDialog.show()
