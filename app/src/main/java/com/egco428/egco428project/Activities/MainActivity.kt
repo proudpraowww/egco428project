@@ -36,12 +36,15 @@ class MainActivity : AppCompatActivity() {
 
         bottomView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         pushFragment(ProfileFragment())
+        mapNavigation.setOnClickListener({
+            bottomView.selectedItemId = R.id.mapNavigation
+        })
     }
 
     fun pushFragment(fragment: Fragment?) {
         if (fragment == null)
             return
-        val fragmentManager = supportFragmentManager//getFragmentManager();
+        val fragmentManager = supportFragmentManager //getFragmentManager();
         if (fragmentManager != null) {
             val ft = fragmentManager.beginTransaction()
             if (ft != null) {

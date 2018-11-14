@@ -9,8 +9,7 @@
 
     <item
         android:id="@+id/mapNavigation"
-        android:icon="@drawable/user_picture"
-        android:title="Map" />
+        tools:ignore="MenuTitle" />
 
     <item
         android:id="@+id/requestNavigation"
