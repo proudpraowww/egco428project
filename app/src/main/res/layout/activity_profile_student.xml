@@ -165,7 +165,7 @@
         <ImageView
             android:id="@+id/bottom_cover_image"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="60dp"
             android:background="@drawable/ic_launcher_background"
             android:scaleType="centerCrop"
             android:rotation="180"
