@@ -83,7 +83,7 @@ class profileStudent : AppCompatActivity(), View.OnClickListener {
             var email = convertView.findViewById<View>(R.id.editMail) as EditText
             var password = convertView.findViewById<View>(R.id.editPassword) as EditText
             val btn = convertView.findViewById<View>(R.id.okBtn) as Button
-            
+
             btn.setOnClickListener {
 
                 alertDialog.dismiss()
