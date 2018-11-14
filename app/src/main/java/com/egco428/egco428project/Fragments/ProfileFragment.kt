@@ -1,40 +1,55 @@
-package com.egco428.egco428project
+package com.egco428.egco428project.Fragments
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import kotlinx.android.synthetic.main.activity_profile_student.*
-import com.google.firebase.database.FirebaseDatabase
+import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.*
-import kotlinx.android.synthetic.main.payment_dialog.*
-import android.widget.Toast
-import android.widget.CheckBox
+import com.egco428.egco428project.R
+import com.google.firebase.database.FirebaseDatabase
 
+class ProfileFragment: Fragment(), View.OnClickListener {
 
+    private var rootView: View? = null
+    private var historyBtn: ImageButton? = null
+    private var paymentBtn: ImageButton? = null
+    private var creditText: TextView? = null
+    private var editBtn: ImageButton? = null
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        rootView = inflater.inflate(R.layout.fragment_profile, container, false)
 
-class profileStudent : AppCompatActivity(), View.OnClickListener {
+        historyBtn = rootView!!.findViewById(R.id.historyBtn) as ImageButton
+        paymentBtn = rootView!!.findViewById(R.id.paymentBtn) as ImageButton
+        creditText = rootView!!.findViewById(R.id.creditText) as TextView
+        editBtn = rootView!!.findViewById(R.id.editBtn) as ImageButton
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_profile_student)
+        historyBtn!!.setOnClickListener(this)
+        paymentBtn!!.setOnClickListener(this)
+        editBtn!!.setOnClickListener(this)
 
-        historyBtn.setOnClickListener(this)
-        paymentBtn.setOnClickListener(this)
-        editBtn.setOnClickListener(this)
+        // Write a message to the database
+        val database = FirebaseDatabase.getInstance()
+        val myRef = database.getReference("message")
+
+        myRef.setValue("Hello, World!")
+
+        return rootView
     }
 
     override fun onClick(v: View?) {
-        if(v===historyBtn){
+        if(v === historyBtn){
 
             val names = arrayOf("A", "B", "C", "D")
-            var alertDialog = AlertDialog.Builder(this).create()
+            var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
             val convertView = inflater.inflate(R.layout.history_dialog, null) as View
             alertDialog.setView(convertView)
             val lv = convertView.findViewById<View>(R.id.historyList) as ListView
-            val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, names)
+            val adapter = ArrayAdapter(this.activity!!, android.R.layout.simple_list_item_1, names)
             lv.setAdapter(adapter)
             val btn = convertView.findViewById<View>(R.id.okBtn) as Button
             btn.setOnClickListener {
@@ -42,12 +57,13 @@ class profileStudent : AppCompatActivity(), View.OnClickListener {
             }
             alertDialog.show()
         }
-        else if(v===paymentBtn){
+        else if(v === paymentBtn){
 
-            var alertDialog = AlertDialog.Builder(this).create()
+            var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
             val convertView = inflater.inflate(R.layout.payment_dialog, null) as View
             alertDialog.setView(convertView)
+            val ten = convertView.findViewById<View>(R.id.cash_100) as ImageView
             val btn = convertView.findViewById<View>(R.id.okBtn) as Button
 
             val check100 = convertView.findViewById<View>(R.id.checkbox_cash100) as CheckBox
@@ -65,14 +81,14 @@ class profileStudent : AppCompatActivity(), View.OnClickListener {
                 if(check400.isChecked){values = values+400}
                 if(check500.isChecked){values = values+500}
                 if(check600.isChecked){values = values+600}
-                creditText.text = "Credit : "+values
+                creditText!!.text = "Credit : "+values
                 alertDialog.dismiss()
             }
             alertDialog.show()
         }
-        else if(v===editBtn){
+        else if(v === editBtn){
 
-            var alertDialog = AlertDialog.Builder(this).create()
+            var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
             val convertView = inflater.inflate(R.layout.student_edit_dialog, null) as View
             alertDialog.setView(convertView)
@@ -92,5 +108,4 @@ class profileStudent : AppCompatActivity(), View.OnClickListener {
         }
 
     }
-
 }
