@@ -8,6 +8,7 @@ import com.egco428.egco428project.Fragments.MapFragment
 import com.egco428.egco428project.Fragments.ProfileFragment
 import com.egco428.egco428project.Fragments.RequestFragment
 import com.egco428.egco428project.R
+import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         mapNavigation.setOnClickListener({
             bottomView.selectedItemId = R.id.mapNavigation
         })
+
     }
 
     fun pushFragment(fragment: Fragment?) {

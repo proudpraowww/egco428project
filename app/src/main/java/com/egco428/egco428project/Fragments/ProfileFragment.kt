@@ -51,10 +51,10 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         studentPhoto!!.setOnClickListener(this)
 
         // Write a message to the database
-        val database = FirebaseDatabase.getInstance()
-        val myRef = database.getReference("message")
-
-        myRef.setValue("Hello, World!")
+//        val database = FirebaseDatabase.getInstance()
+//        val myRef = database.getReference("message")
+//
+//        myRef.setValue("Hello, World!")
 
         return rootView
     }
