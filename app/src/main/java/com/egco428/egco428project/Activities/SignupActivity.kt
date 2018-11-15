@@ -51,7 +51,7 @@ class SignupActivity : AppCompatActivity() {
         var status = statusText.text.toString()
         var phone = phoneText.text.toString()
 
-        if(!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !lastname.isEmpty() && !status.isEmpty() && !phone.isEmpty()){
+        if(!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !lastname.isEmpty() && !status.isEmpty() && !phone.isEmpty() && password.length >= 6){
             mAuth!!.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener{
                     val messageId = database.push().key
