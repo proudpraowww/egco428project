@@ -9,17 +9,19 @@ import android.widget.Toast
 import com.egco428.egco428project.Fragments.MapFragment
 import com.egco428.egco428project.Fragments.ProfileFragment
 import com.egco428.egco428project.Fragments.RequestFragment
+import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_profile.*
 
 class MainActivity : AppCompatActivity() {
 
-    /*lateinit var mAuth: FirebaseAuth
+    lateinit var mAuth: FirebaseAuth
     lateinit var database: DatabaseReference
-    lateinit var currentEmail: String*/
+    lateinit var currentEmail: String
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -49,60 +51,39 @@ class MainActivity : AppCompatActivity() {
             bottomView.selectedItemId = R.id.mapNavigation
         })
 
-       /* mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance().getReference("Members")*/
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance().getReference("Members")
 
-        /*val user = FirebaseAuth.getInstance().currentUser
+        val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             // Name, email address, and profile photo Url
             val name = user.displayName
             currentEmail = user.email.toString()
             val photoUrl = user.photoUrl
-
-            // Check if user's email is verified
             val emailVerified = user.isEmailVerified
-
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getIdToken() instead.
             val uid = user.uid
+        }
 
-            a1.setText(currentEmail)
-            a2.setText(uid)
-        }*/
-
-       /* database.addValueEventListener(object : ValueEventListener {
+        database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 //val value = dataSnapshot.getValue(Member::class.java)
                 val children = dataSnapshot!!.children
                 children.forEach{
-                    *//* var member: Member
-                     member = Member(it.child("id").value.toString(), it.child("email").value.toString(), it.child("password").value.toString(), it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("status").value.toString(), it.child("phone").value.toString())
-                     msgList.add(member)*//*
-                    //a3.setText(it.toString())
-                    //a4.setText(it.child("name").value.toString())
+                     var member: Member
+                     //member = Member(it.child("id").value.toString(), it.child("email").value.toString(), it.child("password").value.toString(), it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("status").value.toString(), it.child("phone").value.toString())
                     if(it.child("email").value.toString().equals(currentEmail)){
                         //a4.setText(it.child("name").value.toString())
-                        a4.setText(it.value.toString())
+                        user_profile_name.setText(it.child("name").value.toString())
                     }
 
                 }
-                *//*msgList.forEach {
-                    if(it.email.equals(currentEmail)){
-                        a4.setText(it.name)
-                    }
-                }*//*
-
-
             }
 
             override fun onCancelled(error: DatabaseError) {
                 // Failed to read value
                 Toast.makeText(applicationContext, "data read failed.", Toast.LENGTH_SHORT).show()
-
             }
-        })*/
-
+        })
     }
 
     fun pushFragment(fragment: Fragment?) {

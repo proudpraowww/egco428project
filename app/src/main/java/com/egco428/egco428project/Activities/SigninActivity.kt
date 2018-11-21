@@ -2,16 +2,8 @@ package com.egco428.egco428project.Activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import android.widget.Toast
-import com.google.firebase.auth.AuthResult
-import com.google.android.gms.tasks.Task
-import android.support.annotation.NonNull
-import com.google.android.gms.tasks.OnCompleteListener
-import android.R.attr.password
 import android.content.Intent
 import com.egco428.egco428project.R
 import kotlinx.android.synthetic.main.activity_signin.*
@@ -52,6 +44,11 @@ class SigninActivity : AppCompatActivity() {
 
         signupBtn.setOnClickListener{
             val intent = Intent(this, SignupActivity::class.java)
+            startActivity(intent)
+        }
+
+        forgotBtn.setOnClickListener{
+            val intent = Intent(this, ForgotpasswordActivity::class.java)
             startActivity(intent)
         }
 
