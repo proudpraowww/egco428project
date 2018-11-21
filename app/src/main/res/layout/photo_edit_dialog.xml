@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+        <TextView
+            android:id="@+id/editPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="76dp"
+            android:text="EDIT PHOTO"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:background="#7FFFD4"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/album"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:backgroundTint="@android:color/white"
+            android:drawablePadding="32dp"
+            android:drawableStart="@drawable/album"
+            android:gravity="start|center_vertical"
+            android:text="Choose from Gallery"
+            android:textColor="#1a0000"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/camera"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:backgroundTint="@android:color/white"
+            android:drawablePadding="32dp"
+            android:drawableStart="@drawable/camera"
+            android:gravity="start|center_vertical"
+            android:text="Camera"
+            android:textColor="#1a0000"
+            android:textSize="16sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="8dp"
+
+            android:layout_marginTop="7dp"
+            android:background="@color/colorPrimaryDark" />
+
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:backgroundTint="@android:color/white"
+            android:drawablePadding="32dp"
+            android:drawableStart="@drawable/cancel"
+            android:gravity="start|center_vertical"
+            android:text="Cancel"
+            android:textColor="#1a0000"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
