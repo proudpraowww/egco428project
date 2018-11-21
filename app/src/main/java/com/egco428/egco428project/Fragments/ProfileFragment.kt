@@ -10,19 +10,33 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.egco428.egco428project.R
-import com.google.firebase.database.FirebaseDatabase
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
+import com.egco428.egco428project.Model.Member
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.history_dialog.*
 import kotlinx.android.synthetic.main.photo_edit_dialog.*
+import org.w3c.dom.Text
 import java.io.IOException
 
 
 class ProfileFragment: Fragment(), View.OnClickListener {
+
+
+    lateinit var mAuth: FirebaseAuth
+    lateinit var database: DatabaseReference
+    lateinit var currentEmail: String
+    lateinit var uid: String
+    lateinit var password: String
+    lateinit var id: String
+    lateinit var Name:String
+    lateinit var Lastname: String
 
     private var rootView: View? = null
     private var historyBtn: ImageButton? = null
@@ -30,6 +44,10 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     private var creditText: TextView? = null
     private var editBtn: ImageButton? = null
     private var studentPhoto: ImageButton? = null
+    private var emailText: TextView? = null
+    private var nameText: TextView? = null
+    private var telText: TextView? = null
+    private var schoolText: TextView? = null
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
@@ -43,18 +61,58 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         creditText = rootView!!.findViewById(R.id.creditText) as TextView
         editBtn = rootView!!.findViewById(R.id.editBtn) as ImageButton
         studentPhoto = rootView!!.findViewById(R.id.student_profile_photo) as ImageButton
-
+        emailText = rootView!!.findViewById(R.id.emailText) as TextView
+        nameText = rootView!!.findViewById(R.id.user_profile_name) as TextView
+        telText = rootView!!.findViewById(R.id.telText) as TextView
+        schoolText = rootView!!.findViewById(R.id.schoolText) as TextView
 
         historyBtn!!.setOnClickListener(this)
         paymentBtn!!.setOnClickListener(this)
         editBtn!!.setOnClickListener(this)
         studentPhoto!!.setOnClickListener(this)
 
-        // Write a message to the database
-//        val database = FirebaseDatabase.getInstance()
-//        val myRef = database.getReference("message")
-//
-//        myRef.setValue("Hello, World!")
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance().getReference("Members")
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            currentEmail = user.email.toString()
+            uid = user.uid
+
+            emailText!!.text = "E-mail : " + currentEmail.toString()
+        }
+
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                //val value = dataSnapshot.getValue(Member::class.java)
+                val children = dataSnapshot!!.children
+                val msgList:ArrayList<Member>? = null
+//                member = Member(it.child("id").value.toString(), it.child("email").value.toString(), it.child("password").value.toString(), it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("status").value.toString(), it.child("phone").value.toString())
+
+                children.forEach{
+                    if(it.child("email").value.toString().equals(currentEmail)){
+                        Name = it.child("name").value.toString()
+                        Lastname = it.child("lastname").value.toString()
+                        var nameAndLastname = Name + " " + Lastname
+                        nameText!!.text = nameAndLastname
+                        telText!!.text = "Tel : " + it.child("phone").value.toString()
+                        schoolText!!.text = "School : " + it.child("school").value.toString()
+                        if(it.child("credit").value.toString().isEmpty()){
+                            "Credit : 0"
+                        }else{
+                            creditText!!.text = "Credit : " + it.child("credit").value.toString()
+                        }
+                        password = it.child("password").value.toString()
+                        id = it.child("id").value.toString()
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read
+            }
+        })
+
 
         return rootView
     }
@@ -102,6 +160,9 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                 if(check500.isChecked){values = values+500}
                 if(check600.isChecked){values = values+600}
                 creditText!!.text = "Credit : "+values
+                database.child(uid).child("credit").setValue(values)
+
+
                 alertDialog.dismiss()
             }
 
@@ -120,12 +181,32 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             var surename = convertView.findViewById<View>(R.id.editSurename) as EditText
             var school = convertView.findViewById<View>(R.id.editSchool) as EditText
             var tel = convertView.findViewById<View>(R.id.editTel) as EditText
-            var email = convertView.findViewById<View>(R.id.editMail) as EditText
-            var password = convertView.findViewById<View>(R.id.editPassword) as EditText
             val save = convertView.findViewById<View>(R.id.saveBtn) as Button
             val cancel = convertView.findViewById<View>(R.id.abolishBtn) as Button
 
             save.setOnClickListener {
+
+                if(name.text.isNotEmpty()){
+                    Name = name.text.toString()
+                    database.child(uid).child("name").setValue(Name)
+                }
+                if(surename.text.isNotEmpty()){
+                    Lastname = surename.text.toString()
+                    database.child(uid).child("lastname").setValue(Lastname)
+                }
+                if(school.text.isNotEmpty()){
+                    schoolText!!.text = school.text.toString()
+                    database.child(uid).child("school").setValue(school.text.toString())
+
+                }
+                if(tel.text.isNotEmpty()){
+                    telText!!.text = tel.text.toString()
+                    database.child(uid).child("phone").setValue(tel.text.toString())
+
+                }
+
+                val nameLastname = Name + " " + Lastname
+                nameText!!.text = nameLastname
                 alertDialog.dismiss()
             }
             cancel.setOnClickListener {
