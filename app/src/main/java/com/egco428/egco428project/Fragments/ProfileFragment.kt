@@ -16,6 +16,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
+import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -29,7 +30,7 @@ import java.io.IOException
 class ProfileFragment: Fragment(), View.OnClickListener {
 
 
-    lateinit var mAuth: FirebaseAuth
+    private var mAuth: FirebaseAuth? = null
     lateinit var database: DatabaseReference
     lateinit var currentEmail: String
     lateinit var uid: String
@@ -48,6 +49,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     private var nameText: TextView? = null
     private var telText: TextView? = null
     private var schoolText: TextView? = null
+    private var logoutBtn: Button? = null
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
@@ -65,13 +67,14 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         nameText = rootView!!.findViewById(R.id.user_profile_name) as TextView
         telText = rootView!!.findViewById(R.id.telText) as TextView
         schoolText = rootView!!.findViewById(R.id.schoolText) as TextView
+        logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as Button
 
         historyBtn!!.setOnClickListener(this)
         paymentBtn!!.setOnClickListener(this)
         editBtn!!.setOnClickListener(this)
         studentPhoto!!.setOnClickListener(this)
 
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -80,6 +83,10 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             uid = user.uid
 
             emailText!!.text = "E-mail : " + currentEmail.toString()
+        }
+
+        logoutBtn!!.setOnClickListener {
+            logoutKeng()
         }
 
         database.addValueEventListener(object : ValueEventListener {
@@ -113,9 +120,16 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             }
         })
 
-
         return rootView
     }
+
+
+    private fun logoutKeng(){
+        mAuth!!.signOut()
+        val intent = Intent(this.activity,SigninActivity::class.java)
+        startActivity(intent)
+    }
+
 
     override fun onClick(v: View?) {
         if(v === historyBtn){

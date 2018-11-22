@@ -72,7 +72,6 @@ class MainActivity : AppCompatActivity() {
                      var member: Member
                      //member = Member(it.child("id").value.toString(), it.child("email").value.toString(), it.child("password").value.toString(), it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("status").value.toString(), it.child("phone").value.toString())
                     if(it.child("email").value.toString().equals(currentEmail)){
-                        //a4.setText(it.child("name").value.toString())
                         user_profile_name.setText(it.child("name").value.toString())
                     }
 
@@ -99,9 +98,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /*private fun logout(){
-        mAuth!!.signOut()
-        val intent = Intent(this,SignActivity::class.java)
-        startActivity(intent)
-    }*/
 }

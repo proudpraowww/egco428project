@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_signup.*
 import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
+import com.egco428.egco428project.R.id.emailRegisText
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_profile.*
 
@@ -27,7 +28,6 @@ class SignupActivity : AppCompatActivity() {
 
         submitBtn.setOnClickListener{
             checkEmailexits()
-            //finish()
         }
 
         cancleBtn.setOnClickListener{
@@ -53,16 +53,28 @@ class SignupActivity : AppCompatActivity() {
                     .addOnCompleteListener(){
                         var check = !it.getResult().providers!!.isEmpty()
                         if(!check){
-                              mAuth!!.createUserWithEmailAndPassword(email, password)
-                                      .addOnCompleteListener{
-                                          //val messageId = database.push().key
-                                          val messageData = Member(user!!.uid,email, password, name,lastname,status,phone,school,"","","","")
-                                          database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
-                                              Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
-                                          })
-                                          val intent = Intent(this, SigninActivity::class.java)
-                                          startActivity(intent)
-                                      }
+                            mAuth!!.createUserWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener{
+                                        //val messageId = database.push().key
+                                        val messageData = Member(user!!.uid,email, password, name,lastname,status,phone,school,"","","","")
+                                        database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
+                                            Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
+                                        })
+
+                                        mAuth!!.signInWithEmailAndPassword(email, password)
+                                                .addOnCompleteListener(this) { task ->
+                                                    if (task.isSuccessful) {
+                                                        val user = mAuth!!.getCurrentUser()
+                                                        Toast.makeText(applicationContext,"Sigin Success Fully....",Toast.LENGTH_SHORT).show()
+                                                        val intent = Intent(this, MainActivity::class.java)
+                                                        startActivity(intent)
+                                                        finish()
+                                                    } else {
+                                                        // If sign in fails, display a message to the user.
+                                                        Toast.makeText(applicationContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                    }
                         } else{
                             Toast.makeText(this,"Email already present", Toast.LENGTH_SHORT).show()
                         }
