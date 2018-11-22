@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.egco428.egco428project">
 
-    <uses-feature android:name="android.hardware.camera2" android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.camera2"
+        android:required="true" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -23,14 +25,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCrXvMLaEM_r4Pp5ZtIaf2r9kbTHEL54pk" />
 
-        <activity android:name=".Activities.MainActivity">
+        <activity android:name=".Activities.SigninActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.GoogleMap"></activity>
+        <activity android:name=".Activities.MainActivity" />
+        <activity android:name=".Activities.SignupActivity" />
+        <activity android:name=".Activities.ForgotpasswordActivity"></activity>
     </application>
 
 </manifest>
