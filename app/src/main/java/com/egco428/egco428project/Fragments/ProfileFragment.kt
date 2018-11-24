@@ -13,6 +13,7 @@ import com.egco428.egco428project.R
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
@@ -20,11 +21,19 @@ import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.history_dialog.*
 import kotlinx.android.synthetic.main.photo_edit_dialog.*
 import org.w3c.dom.Text
 import java.io.IOException
+import com.egco428.egco428project.R.id.imageView
+import com.bumptech.glide.Glide
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
+import java.io.File
+import java.net.URI
 
 
 class ProfileFragment: Fragment(), View.OnClickListener {
@@ -38,6 +47,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     lateinit var id: String
     lateinit var Name:String
     lateinit var Lastname: String
+    lateinit var Credit: String
 
     private var rootView: View? = null
     private var historyBtn: ImageButton? = null
@@ -53,6 +63,10 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
+//    private val IMAGE_REQUEST = 1234
+//    private var filePath: Uri? = null
+    private var storage: FirebaseStorage? = null
+    private var storageReference: StorageReference? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -76,6 +90,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage!!.reference
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -88,6 +104,22 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         logoutBtn!!.setOnClickListener {
             logoutKeng()
         }
+        val photoRef = storageReference!!.child("photo/"+uid)
+//        println("========================================="+photoRef.downloadUrl.getResult().toString())
+
+        val localFile = File.createTempFile("images", "jpg")
+        photoRef.getFile(localFile)
+                .addOnSuccessListener(OnSuccessListener<Any> {
+                    val uri = Uri.fromFile(localFile)
+                    val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,uri)
+                    studentPhoto!!.setImageBitmap(bitmap)
+
+
+                }).addOnFailureListener(OnFailureListener {
+                    // Handle failed download
+                    // ...
+                })
+
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -106,8 +138,10 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                         schoolText!!.text = "School : " + it.child("school").value.toString()
                         if(it.child("credit").value.toString().isEmpty()){
                             "Credit : 0"
+                            Credit = "0".toString()
                         }else{
                             creditText!!.text = "Credit : " + it.child("credit").value.toString()
+                            Credit = it.child("credit").value.toString()
                         }
                         password = it.child("password").value.toString()
                         id = it.child("id").value.toString()
@@ -166,15 +200,16 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             val check600 = convertView.findViewById<View>(R.id.checkbox_cash600) as CheckBox
 
             submit.setOnClickListener {
-                var values = 0
+                var values = Credit.toInt()
                 if(check100.isChecked){values = values+100}
                 if(check200.isChecked){values = values+200}
                 if(check300.isChecked){values = values+300}
                 if(check400.isChecked){values = values+400}
                 if(check500.isChecked){values = values+500}
                 if(check600.isChecked){values = values+600}
-                creditText!!.text = "Credit : "+values
-                database.child(uid).child("credit").setValue(values)
+
+                creditText!!.text = "Credit : "+ values.toString()
+                database.child(uid).child("credit").setValue(values.toString())
 
 
                 alertDialog.dismiss()
@@ -273,6 +308,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             try {
                 val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,filePath)
                 studentPhoto!!.setImageBitmap(bitmap)
+                uploadFile()
             }catch (e: IOException){
                 e.printStackTrace()
             }
@@ -281,8 +317,9 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
             val extras = data!!.extras
             val photo = extras!!.get("data") as Bitmap
-
+            filePath = data.data
             studentPhoto!!.setImageBitmap(photo)
+            uploadFile()
 
         }
 
@@ -303,6 +340,28 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     fun launchCamera(){
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(intent,REQUEST_IMAGE_CAPTURE)
+    }
+
+
+    private fun uploadFile(){
+
+        if(filePath !== null){
+//            Toast.makeText(applicationContext, "Uploading...", Toast.LENGTH_SHORT).show()
+            val imageRef = storageReference!!.child("photo/"+uid)
+            imageRef.putFile(filePath!!)
+//                    .addOnSuccessListener { Toast.makeText(applicationContext, "File Uploaded...", Toast.LENGTH_SHORT).show() }
+//                    .addOnFailureListener{ Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show() }
+//                    .addOnProgressListener {
+//                        takeSnapShot->
+//                        val progress = 100 * takeSnapShot.bytesTransferred/ takeSnapShot.totalByteCount
+//                        Toast.makeText(applicationContext, "Uploaded"+progress.toInt()+"%...", Toast.LENGTH_SHORT).show()
+//
+//                    }
+
+        }
+
+
+
     }
 
 }
