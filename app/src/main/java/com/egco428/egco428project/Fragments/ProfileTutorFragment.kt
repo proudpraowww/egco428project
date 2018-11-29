@@ -14,6 +14,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
 import com.google.firebase.auth.FirebaseAuth
@@ -27,7 +28,7 @@ import com.google.android.gms.tasks.OnSuccessListener
 import java.io.File
 
 
-class ProfileFragment: Fragment(), View.OnClickListener {
+class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
 
     private var mAuth: FirebaseAuth? = null
@@ -51,6 +52,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     private var telText: TextView? = null
     private var schoolText: TextView? = null
     private var logoutBtn: Button? = null
+    private var tutor: TextView? = null //test
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
@@ -61,7 +63,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        rootView = inflater.inflate(R.layout.fragment_profile, container, false)
+        rootView = inflater.inflate(R.layout.fragment_tutor_profile, container, false)
 
         historyBtn = rootView!!.findViewById(R.id.historyBtn) as ImageButton
         paymentBtn = rootView!!.findViewById(R.id.paymentBtn) as ImageButton
@@ -73,6 +75,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         telText = rootView!!.findViewById(R.id.telText) as TextView
         schoolText = rootView!!.findViewById(R.id.schoolText) as TextView
         logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as Button
+
+        tutor = rootView!!.findViewById(R.id.tutor) as TextView //test
 
         historyBtn!!.setOnClickListener(this)
         paymentBtn!!.setOnClickListener(this)
@@ -125,6 +129,9 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                         Lastname = it.child("lastname").value.toString()
                         var nameAndLastname = Name + " " + Lastname
                         nameText!!.text = nameAndLastname
+                        //test
+                        Log.d("TutorActivity", it.child("status").value.toString())
+                        tutor!!.text = it.child("status").value.toString()
                         telText!!.text = "Tel : " + it.child("phone").value.toString()
                         schoolText!!.text = "School : " + it.child("school").value.toString()
                         if(it.child("credit").value.toString().isEmpty()){

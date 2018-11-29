@@ -5,12 +5,10 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.activity_signup.*
 import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
-import com.egco428.egco428project.R.id.emailRegisText
 import com.google.firebase.database.*
-import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.activity_signup.*
 
 
 class SignupActivity : AppCompatActivity() {

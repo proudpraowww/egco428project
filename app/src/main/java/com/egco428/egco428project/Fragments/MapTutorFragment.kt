@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Marker
 import com.egco428.egco428project.LocationLatLng
 
-class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private var rootView: View? = null
     private var ERROR_DIALOG_REQUEST:Int = 9001
@@ -33,7 +33,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        rootView = inflater.inflate(R.layout.fragment_map, container, false)
+        rootView = inflater.inflate(R.layout.fragment_tutor_map, container, false)
         data = DataProvider.getData()
 
         if (isServicesOK()){
