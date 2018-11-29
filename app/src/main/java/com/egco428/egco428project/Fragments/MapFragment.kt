@@ -16,33 +16,37 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.GoogleMap
 
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.Marker
+import com.egco428.egco428project.PersonData
+import com.google.firebase.database.*
+import android.R.color.transparent
+import android.view.Window.FEATURE_NO_TITLE
+import com.egco428.egco428project.Model.Member
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.egco428.egco428project.R.id.lng
-import com.egco428.egco428project.R.id.lat
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.Marker
-import com.egco428.egco428project.R.id.lng
-import com.egco428.egco428project.R.id.lat
-import kotlinx.android.synthetic.main.info_window.view.*
-import com.egco428.egco428project.LocationLatLng
+
+import java.util.*
+
 
 class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private var rootView: View? = null
     private var ERROR_DIALOG_REQUEST:Int = 9001
     lateinit var mapFragment: SupportMapFragment
-    lateinit var data: ArrayList<LocationLatLng>
+    lateinit var dataPersonal: Member
+    lateinit var database: DatabaseReference
+//    private var storageReference: StorageReference? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_map, container, false)
-        data = DataProvider.getData()
+
 
         if (isServicesOK()){
+            database = FirebaseDatabase.getInstance().getReference("Members")
             Toast.makeText(this.activity,"Service Working", Toast.LENGTH_SHORT).show()
             mapFragment = childFragmentManager.findFragmentById(R.id.gMap) as SupportMapFragment
             mapFragment.getMapAsync(this)
@@ -72,18 +76,65 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
+//             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 //        val sydney = LatLng(-33.852, 151.211)
 //        mPerth = googleMap.addMarker(MarkerOptions().position(sydney)
 //                .title("Marker in Sydney")
 //                .snippet("snippp"))
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-        val data = DataProvider.getData()
-        for (i in data){
-//            googleMap!!.addMarker(MarkerOptions().position(LatLng(i.lat, i.lng)))
+//        for (i in data){
+//
+////            googleMap!!.addMarker(MarkerOptions().position(LatLng(i.lat, i.lng)))
+////            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(i.lat, i.lng), 10F))
+//            googleMap.addMarker(MarkerOptions().position(LatLng(i.lat, i.lng)).title("Marker")).setTag(i)
 //            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(i.lat, i.lng), 10F))
-            googleMap.addMarker(MarkerOptions().position(LatLng(i.lat, i.lng)).title("Marker")).setTag(i)
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(i.lat, i.lng), 10F))
-        }
+//        }
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                //val value = dataSnapshot.getValue(Member::class.java)
+                val children = dataSnapshot!!.children
+                children.forEach{
+                    if(it.child("statusOnOff").value.toString() == "on" && it.child("status").value.toString() == "tutor"){
+                        dataPersonal = Member(
+                                it.child("id").value.toString(),
+                                it.child("email").value.toString(),
+                                it.child("password").value.toString(),
+                                it.child("name").value.toString(),
+                                it.child("lastname").value.toString(),
+                                it.child("status").value.toString(),
+                                it.child("phone").value.toString(),
+                                it.child("school").value.toString(),
+                                it.child("statusOnOff").value.toString(),
+                                it.child("latitude").value.toString(),
+                                it.child("longitude").value.toString(),
+                                it.child("credit").value.toString())
+
+//                        val photoRef = storageReference!!.child("photo/"+uid)
+//                        val localFile = File.createTempFile("images", "jpg")
+//                        photoRef.getFile(localFile)
+//                                .addOnSuccessListener(OnSuccessListener<Any> {
+//                                    val uri = Uri.fromFile(localFile)
+//                                    val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,uri)
+//                                    studentPhoto!!.setImageBitmap(bitmap)
+//
+//
+//                                }).addOnFailureListener(OnFailureListener {
+//                                    // Handle failed download
+//                                    // ...
+//                                })
+
+                        googleMap.addMarker(MarkerOptions().position(LatLng(dataPersonal.latitude.toDouble(), dataPersonal.longitude.toDouble())).title("Marker")).setTag(dataPersonal)
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(dataPersonal.latitude.toDouble(), dataPersonal.longitude.toDouble()), 10F))
+
+                    }
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read
+            }
+        })
 
         googleMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
 
@@ -98,8 +149,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                 val lat = v.findViewById(R.id.lat) as TextView
                 val lng = v.findViewById(R.id.lng) as TextView
 
-                var dataX : LocationLatLng = marker.getTag() as LocationLatLng
-                msg.text = dataX.msg
+                var dataX : PersonData = marker.getTag() as PersonData
+//                msg.text = dataX.msg
                 lat.text = "Latitude: " + marker.position.latitude
                 lng.text = "Longitude: " + marker.position.longitude
 
@@ -111,7 +162,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
     }
 
     override fun onInfoWindowClick(marker: Marker) {
-        var dataX : LocationLatLng = marker.getTag() as LocationLatLng
+        var dataX : PersonData = marker.getTag() as PersonData
 //        Toast.makeText(this.activity ,dataX.id.toString() + dataX.msg,   Toast.LENGTH_SHORT).show()
 
         var detailDialog = AlertDialog.Builder(this.activity!!).create()
@@ -125,11 +176,11 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         val requestBtn = view.findViewById<View>(R.id.requestBtn) as Button
         val cancelBtn = view.findViewById<View>(R.id.cancelBtn) as Button
 
-        var latlong:String = dataX.lat.toString()+ " : "+ dataX.lng.toString()
+//        var latlong:String = dataX.lat.toString()+ " : "+ dataX.lng.toString()
 
-        idText.text = dataX.id.toString()
-        messageText.text = dataX.msg
-        latLng.text = latlong
+//        idText.text = dataX.id.toString()
+//        messageText.text = dataX.msg
+//        latLng.text = latlong
 
         requestBtn.setOnClickListener {
 
