@@ -13,6 +13,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Handler
 import android.provider.MediaStore
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
@@ -63,6 +64,19 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false)
 
+        var loadingDialog = AlertDialog.Builder(this.activity!!).create()
+        val inflater = layoutInflater
+        val convertView = inflater.inflate(R.layout.loading_dialog, null) as View
+        loadingDialog.setView(convertView)
+        loadingDialog.show()
+
+        Handler().postDelayed({
+            //doSomethingHere()
+            loadingDialog.dismiss()
+
+        }, 3000)
+
+
         historyBtn = rootView!!.findViewById(R.id.historyBtn) as ImageButton
         paymentBtn = rootView!!.findViewById(R.id.paymentBtn) as ImageButton
         creditText = rootView!!.findViewById(R.id.creditText) as TextView
@@ -96,7 +110,6 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             logoutKeng()
         }
         val photoRef = storageReference!!.child("photo/"+uid)
-//        println("========================================="+photoRef.downloadUrl.getResult().toString())
 
         val localFile = File.createTempFile("images", "jpg")
         photoRef.getFile(localFile)
