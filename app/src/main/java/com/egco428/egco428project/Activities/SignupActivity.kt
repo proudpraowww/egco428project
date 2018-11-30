@@ -3,6 +3,9 @@ package com.egco428.egco428project.Activities
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.percent.PercentRelativeLayout
+import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.egco428.egco428project.Model.Member
@@ -15,6 +18,7 @@ class SignupActivity : AppCompatActivity() {
 
     private var mAuth: FirebaseAuth? = null
     lateinit var database: DatabaseReference
+    private var isSigninScreen: Boolean? = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,18 +27,68 @@ class SignupActivity : AppCompatActivity() {
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
 
+        tvSignupInvoker2.setOnClickListener {
+            isSigninScreen = false
+            showSignupTeacherForm()
+        }
+        tvSigninInvoker2.setOnClickListener {
+            isSigninScreen = true
+            showSignupStudentForm()
+        }
 
-        submitBtn.setOnClickListener{
+
+      /*  submitBtn.setOnClickListener{
             checkEmailexits()
         }
 
         cancleBtn.setOnClickListener{
             finish()
-        }
+        }*/
 
     }
 
-    private fun checkEmailexits(){
+
+    private fun showSignupTeacherForm() {
+        val paramsLogin = llSignin2.getLayoutParams() as PercentRelativeLayout.LayoutParams
+        val infoLogin = paramsLogin.percentLayoutInfo
+        infoLogin.widthPercent = 0.15f
+        llSignin2.requestLayout()
+
+
+        val paramsSignup = llSignup2.getLayoutParams() as PercentRelativeLayout.LayoutParams
+        val infoSignup = paramsSignup.percentLayoutInfo
+        infoSignup.widthPercent = 0.85f
+        llSignup2.requestLayout()
+
+        tvSignupInvoker2.setVisibility(View.GONE)
+        tvSigninInvoker2.setVisibility(View.VISIBLE)
+        val translate = AnimationUtils.loadAnimation(applicationContext, R.anim.translate_right_to_left)
+        llSignup2.startAnimation(translate)
+
+    }
+
+    private fun showSignupStudentForm() {
+        val paramsLogin = llSignin2.getLayoutParams() as PercentRelativeLayout.LayoutParams
+        val infoLogin = paramsLogin.percentLayoutInfo
+        infoLogin.widthPercent = 0.85f
+        llSignin2.requestLayout()
+
+
+        val paramsSignup = llSignup2.getLayoutParams() as PercentRelativeLayout.LayoutParams
+        val infoSignup = paramsSignup.percentLayoutInfo
+        infoSignup.widthPercent = 0.15f
+        llSignup2.requestLayout()
+
+        val translate = AnimationUtils.loadAnimation(applicationContext, R.anim.translate_left_to_right)
+        llSignin2.startAnimation(translate)
+
+        tvSignupInvoker2.setVisibility(View.VISIBLE)
+        tvSigninInvoker2.setVisibility(View.GONE)
+    }
+
+
+
+    /*private fun checkEmailexits(){
 
         var email = emailRegisText.text.toString()
         var password = pwdText.text.toString()
@@ -80,6 +134,6 @@ class SignupActivity : AppCompatActivity() {
         }else{
             Toast.makeText(this,"Please enter information", Toast.LENGTH_SHORT).show()
         }
-    }
+    }*/
 
 }
