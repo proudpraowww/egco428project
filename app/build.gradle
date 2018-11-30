@@ -9,7 +9,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.egco428.egco428project"
-        minSdkVersion 24
+        minSdkVersion 22
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -38,5 +38,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     implementation 'com.google.firebase:firebase-auth:11.8.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.android.support:percent:24.2.1'
 
 }
