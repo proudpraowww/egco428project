@@ -4,6 +4,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.percent.PercentRelativeLayout
+import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
@@ -12,6 +13,10 @@ import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_signup.*
+import kotlinx.android.synthetic.main.activity_signup_student.*
+import kotlinx.android.synthetic.main.activity_signup_teacher.*
+import kotlinx.android.synthetic.main.activity_type_signin.*
+import kotlinx.android.synthetic.main.activity_type_signup.*
 
 
 class SignupActivity : AppCompatActivity() {
@@ -37,13 +42,13 @@ class SignupActivity : AppCompatActivity() {
         }
 
 
-      /*  submitBtn.setOnClickListener{
-            checkEmailexits()
+        btnSignupStudent.setOnClickListener{
+            checkStudentEmailexits()
         }
 
-        cancleBtn.setOnClickListener{
-            finish()
-        }*/
+        btnSignupTeacher.setOnClickListener{
+            checkTeacherEmailexits()
+        }
 
     }
 
@@ -73,42 +78,38 @@ class SignupActivity : AppCompatActivity() {
         infoLogin.widthPercent = 0.85f
         llSignin2.requestLayout()
 
-
         val paramsSignup = llSignup2.getLayoutParams() as PercentRelativeLayout.LayoutParams
         val infoSignup = paramsSignup.percentLayoutInfo
         infoSignup.widthPercent = 0.15f
         llSignup2.requestLayout()
 
-        val translate = AnimationUtils.loadAnimation(applicationContext, R.anim.translate_left_to_right)
-        llSignin2.startAnimation(translate)
-
         tvSignupInvoker2.setVisibility(View.VISIBLE)
         tvSigninInvoker2.setVisibility(View.GONE)
+        val translate = AnimationUtils.loadAnimation(applicationContext, R.anim.translate_left_to_right)
+        llSignin2.startAnimation(translate)
     }
 
+    private fun checkStudentEmailexits(){
 
-
-    /*private fun checkEmailexits(){
-
-        var email = emailRegisText.text.toString()
-        var password = pwdText.text.toString()
-        var name = nameText.text.toString()
-        var lastname = lastnameText.text.toString()
-        var status = statusText.text.toString()
-        var phone = phoneText.text.toString()
-        var school = schoolRegisText.text.toString()
+        var email = emailStudentEdittext.text.toString()
+        var password = passwordStudentEdittext.text.toString()
+        var name = nameStudentEdittext.text.toString()
+        var lastname = lastnameStudentEdittext.text.toString()
+        var phone = phoneStudentEdittext.text.toString()
+        var school = schoolEdittext.text.toString()
         val user = FirebaseAuth.getInstance().currentUser
 
-        if(!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !lastname.isEmpty() && !status.isEmpty() && !phone.isEmpty()
+        if(!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !lastname.isEmpty() && !phone.isEmpty()
                 && password.length >= 6  && !school.isEmpty()) {
-            mAuth!!.fetchProvidersForEmail(emailRegisText.text.toString())
+            mAuth!!.fetchProvidersForEmail(emailStudentEdittext.text.toString())
                     .addOnCompleteListener(){
                         var check = !it.getResult().providers!!.isEmpty()
                         if(!check){
                             mAuth!!.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener{
                                         //val messageId = database.push().key
-                                        val messageData = Member(user!!.uid,email, password, name,lastname,status,phone,school,"","","","")
+                                        Log.d("Email Login",email)
+                                        val messageData = Member(user!!.uid,email, password, name,lastname,"student",phone,school,"","","","","")
                                         database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
                                             Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
                                         })
@@ -134,6 +135,54 @@ class SignupActivity : AppCompatActivity() {
         }else{
             Toast.makeText(this,"Please enter information", Toast.LENGTH_SHORT).show()
         }
-    }*/
+    }
+
+    private fun checkTeacherEmailexits(){
+
+        var email = emailTeacherEdittext.text.toString()
+        var password = passwordTeacherEdittext.text.toString()
+        var name = nameTeacherEdittext.text.toString()
+        var lastname = lastnameTeacherEdittext.text.toString()
+        var phone = phoneTeacherEdittext.text.toString()
+        var subject = subjectTeacherEdittext.text.toString()
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if(!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !lastname.isEmpty() && !phone.isEmpty()
+                && password.length >= 6 && !subject.isEmpty()) {
+            mAuth!!.fetchProvidersForEmail(emailTeacherEdittext.text.toString())
+                    .addOnCompleteListener(){
+                        var check = !it.getResult().providers!!.isEmpty()
+                        if(!check){
+                            mAuth!!.createUserWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener{
+                                        //val messageId = database.push().key
+                                        Log.d("Email Login",email)
+                                        val messageData = Member(user!!.uid,email, password, name,lastname,"teacher",phone,"","","","","",subject)
+                                        database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
+                                            Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
+                                        })
+
+                                        mAuth!!.signInWithEmailAndPassword(email, password)
+                                                .addOnCompleteListener(this) { task ->
+                                                    if (task.isSuccessful) {
+                                                        val user = mAuth!!.getCurrentUser()
+                                                        Toast.makeText(applicationContext,"Sigin Success Fully....",Toast.LENGTH_SHORT).show()
+                                                        val intent = Intent(this, MainActivity::class.java)
+                                                        startActivity(intent)
+                                                        finish()
+                                                    } else {
+                                                        // If sign in fails, display a message to the user.
+                                                        Toast.makeText(applicationContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                    }
+                        } else{
+                            Toast.makeText(this,"Email already present", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+        }else{
+            Toast.makeText(this,"Please enter information", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 }

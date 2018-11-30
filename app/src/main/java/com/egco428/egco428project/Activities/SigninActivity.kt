@@ -54,6 +54,11 @@ class SigninActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        btnForgotpass.setOnClickListener{
+            val intent = Intent(this,ForgotpasswordActivity::class.java)
+            startActivity(intent)
+        }
+
 
         /*val user = mAuth!!.currentUser
         if(user != null){
@@ -124,7 +129,8 @@ class SigninActivity : AppCompatActivity() {
                             it.child("statusOnOff").value.toString(),
                             it.child("latitude").value.toString(),
                             it.child("longitude").value.toString(),
-                            it.child("credit").value.toString())
+                            it.child("credit").value.toString(),
+                            it.child("subject").value.toString())
 
                     memberList!!.add(member)
                 }
