@@ -1,6 +1,5 @@
 package com.egco428.egco428project.Fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -10,14 +9,9 @@ import android.view.ViewGroup
 import android.widget.*
 import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
-import android.view.MotionEvent
-import android.view.GestureDetector.SimpleOnGestureListener
-import android.text.method.Touch.onTouchEvent
-import android.view.GestureDetector
-import android.view.View.OnTouchListener
 import kotlinx.android.synthetic.main.row_tutor_request.view.*
 
-class RequestFragment: Fragment() {
+class RequestTutorFragment: Fragment() {
 
     private var rootView: View? = null
     private var members: ArrayList<Member>? = null
@@ -25,7 +19,7 @@ class RequestFragment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        rootView = inflater.inflate(R.layout.fragment_request, container, false)
+        rootView = inflater.inflate(R.layout.fragment_tutor_request, container, false)
 
         val requestListView = rootView!!.findViewById<ListView>(R.id.requestListView)
 
@@ -62,7 +56,7 @@ class RequestFragment: Fragment() {
             if(convertView == null){
 
                 val layoutInflater = LayoutInflater.from(viewGroup!!.context)
-                rowRequest = layoutInflater.inflate(R.layout.row_request, viewGroup, false)
+                rowRequest = layoutInflater.inflate(R.layout.row_tutor_request, viewGroup, false)
                 val viewHolder = ViewHolder(rowRequest.imageView, rowRequest.nameText, rowRequest.lastnameText, rowRequest.courseText, rowRequest.telText, rowRequest.answerLayout)
                 rowRequest.tag = viewHolder
 
@@ -82,12 +76,16 @@ class RequestFragment: Fragment() {
 
             rowRequest.setOnClickListener {
                 Log.d("Click", "row " + members.get(position).name)
-                viewHolder.answerLayout.visibility = View.GONE
+                if(viewHolder.answerLayout.visibility == View.GONE){
+                    viewHolder.answerLayout.visibility = View.VISIBLE
+                } else if(viewHolder.answerLayout.visibility == View.VISIBLE){
+                    viewHolder.answerLayout.visibility = View.GONE
+                }
             }
 
             acceptBtn.setOnClickListener {
+
                 //Log.d("Accept", "row " + members.get(position).name)
-                viewHolder.answerLayout.visibility = View.GONE
             }
 
             rejectBtn.setOnClickListener{
@@ -97,7 +95,6 @@ class RequestFragment: Fragment() {
                     notifyDataSetChanged()
                     rowRequest.setAlpha(1.0F)
                 }
-
             }
 
             return rowRequest

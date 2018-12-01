@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:background="@color/colorAccentTrans"
+              android:gravity="center"
+              android:layout_gravity="center"
+              android:orientation="vertical"
+              android:paddingLeft="30dp"
+              android:paddingRight="30dp">
+
+    <TextView
+            android:id="@+id/textView"
+            android:text="SIGNUP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
+            android:gravity="center"
+            android:textSize="48dp"
+            android:textColor="#FFFFFF"
+    />
+    <Button
+            android:id="@+id/Btnstudent"
+            android:text="STUDENT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:drawableLeft="@drawable/student"
+            android:drawableRight="@drawable/arrow"
+            android:background="@drawable/blockmsg"
+            android:padding="10dp"
+    />
+
+    <Button
+            android:id="@+id/Btnteacher"
+            android:text="TEACHER"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:drawableLeft="@drawable/teacher"
+            android:drawableRight="@drawable/arrow"
+            android:background="@drawable/blockmsg"
+            android:padding="10dp"
+
+    />
+
+
+
+</LinearLayout>
