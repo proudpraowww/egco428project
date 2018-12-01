@@ -84,9 +84,24 @@
             android:id="@+id/subjectTeacherEdittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Subject"
+            android:hint="Course"
             android:inputType="text"
             android:textColor="#FFFFFF"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColorHint="#FFF">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/coursePriceTeacherEdittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Course Price"
+            android:inputType="numberDecimal"
+            android:textColor="#FFFFFF" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
