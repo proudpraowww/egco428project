@@ -4,6 +4,11 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#ffffff</color>
 
+    <color name="colorAccept">#03dc56</color>
+    <color name="colorAccepted">#5de66b</color>
+    <color name="colorReject">#ed4a6d</color>
+    <color name="colorRejected">#f16c89</color>
+
     <color name="colorPrimaryTrans">#a0673AB7</color>
     <color name="colorAccentTrans">#a0009688</color>
     <color name="colorBlackTrans">#a0000000</color>

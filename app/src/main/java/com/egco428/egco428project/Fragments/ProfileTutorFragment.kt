@@ -1,6 +1,7 @@
 package com.egco428.egco428project.Fragments
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -25,6 +26,9 @@ import kotlinx.android.synthetic.main.photo_edit_dialog.*
 import java.io.IOException
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.storage.UploadTask
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 
@@ -43,21 +47,18 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
     private var rootView: View? = null
     private var historyBtn: ImageButton? = null
-    private var paymentBtn: ImageButton? = null
     private var creditText: TextView? = null
     private var editBtn: ImageButton? = null
-    private var studentPhoto: ImageButton? = null
+    private var tutorPhoto: ImageButton? = null
     private var emailText: TextView? = null
     private var nameText: TextView? = null
     private var telText: TextView? = null
-    private var schoolText: TextView? = null
+    private var courseText: TextView? = null
     private var logoutBtn: Button? = null
-    private var tutor: TextView? = null //test
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
-//    private val IMAGE_REQUEST = 1234
-//    private var filePath: Uri? = null
+
     private var storage: FirebaseStorage? = null
     private var storageReference: StorageReference? = null
 
@@ -66,22 +67,18 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         rootView = inflater.inflate(R.layout.fragment_tutor_profile, container, false)
 
         historyBtn = rootView!!.findViewById(R.id.historyBtn) as ImageButton
-        paymentBtn = rootView!!.findViewById(R.id.paymentBtn) as ImageButton
         creditText = rootView!!.findViewById(R.id.creditText) as TextView
         editBtn = rootView!!.findViewById(R.id.editBtn) as ImageButton
-        studentPhoto = rootView!!.findViewById(R.id.student_profile_photo) as ImageButton
+        tutorPhoto = rootView!!.findViewById(R.id.tutor_profile_photo) as ImageButton
         emailText = rootView!!.findViewById(R.id.emailText) as TextView
         nameText = rootView!!.findViewById(R.id.user_profile_name) as TextView
         telText = rootView!!.findViewById(R.id.telText) as TextView
-        schoolText = rootView!!.findViewById(R.id.schoolText) as TextView
+        courseText = rootView!!.findViewById(R.id.courseText) as TextView
         logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as Button
 
-        tutor = rootView!!.findViewById(R.id.tutor) as TextView //test
-
         historyBtn!!.setOnClickListener(this)
-        paymentBtn!!.setOnClickListener(this)
         editBtn!!.setOnClickListener(this)
-        studentPhoto!!.setOnClickListener(this)
+        tutorPhoto!!.setOnClickListener(this)
 
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
@@ -107,7 +104,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                 .addOnSuccessListener(OnSuccessListener<Any> {
                     val uri = Uri.fromFile(localFile)
                     val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,uri)
-                    studentPhoto!!.setImageBitmap(bitmap)
+                    tutorPhoto!!.setImageBitmap(bitmap)
 
 
                 }).addOnFailureListener(OnFailureListener {
@@ -131,9 +128,8 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                         nameText!!.text = nameAndLastname
                         //test
                         Log.d("TutorActivity", it.child("status").value.toString())
-                        tutor!!.text = it.child("status").value.toString()
                         telText!!.text = "Tel : " + it.child("phone").value.toString()
-                        schoolText!!.text = "School : " + it.child("school").value.toString()
+                        courseText!!.text = "Course : " + it.child("course").value.toString()
                         if(it.child("credit").value.toString().isEmpty()){
                             "Credit : 0"
                             Credit = "0".toString()
@@ -180,49 +176,11 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             }
             alertDialog.show()
         }
-        else if(v === paymentBtn){
-
-            var alertDialog = AlertDialog.Builder(this.activity!!).create()
-            val inflater = layoutInflater
-            val convertView = inflater.inflate(R.layout.payment_dialog, null) as View
-            alertDialog.setView(convertView)
-            val ten = convertView.findViewById<View>(R.id.cash_100) as ImageView
-            val submit = convertView.findViewById<View>(R.id.submitBtn) as Button
-            val cancel = convertView.findViewById<View>(R.id.cancelBtn) as Button
-
-            val check100 = convertView.findViewById<View>(R.id.checkbox_cash100) as CheckBox
-            val check200 = convertView.findViewById<View>(R.id.checkbox_cash200) as CheckBox
-            val check300 = convertView.findViewById<View>(R.id.checkbox_cash300) as CheckBox
-            val check400 = convertView.findViewById<View>(R.id.checkbox_cash400) as CheckBox
-            val check500 = convertView.findViewById<View>(R.id.checkbox_cash500) as CheckBox
-            val check600 = convertView.findViewById<View>(R.id.checkbox_cash600) as CheckBox
-
-            submit.setOnClickListener {
-                var values = Credit.toInt()
-                if(check100.isChecked){values = values+100}
-                if(check200.isChecked){values = values+200}
-                if(check300.isChecked){values = values+300}
-                if(check400.isChecked){values = values+400}
-                if(check500.isChecked){values = values+500}
-                if(check600.isChecked){values = values+600}
-
-                creditText!!.text = "Credit : "+ values.toString()
-                database.child(uid).child("credit").setValue(values.toString())
-
-
-                alertDialog.dismiss()
-            }
-
-            cancel.setOnClickListener{
-                alertDialog.dismiss()
-            }
-            alertDialog.show()
-        }
         else if(v === editBtn){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
-            val convertView = inflater.inflate(R.layout.student_edit_dialog, null) as View
+            val convertView = inflater.inflate(R.layout.edit_dialog, null) as View
             alertDialog.setView(convertView)
             var name = convertView.findViewById<View>(R.id.editName) as EditText
             var surename = convertView.findViewById<View>(R.id.editSurename) as EditText
@@ -242,7 +200,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                     database.child(uid).child("lastname").setValue(Lastname)
                 }
                 if(school.text.isNotEmpty()){
-                    schoolText!!.text = school.text.toString()
+                    courseText!!.text = school.text.toString()
                     database.child(uid).child("school").setValue(school.text.toString())
 
                 }
@@ -261,7 +219,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             }
             alertDialog.show()
         }
-        else if(v===studentPhoto){
+        else if(v===tutorPhoto){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
@@ -305,7 +263,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             filePath = data.data
             try {
                 val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,filePath)
-                studentPhoto!!.setImageBitmap(bitmap)
+                tutorPhoto!!.setImageBitmap(bitmap)
                 uploadFile()
             }catch (e: IOException){
                 e.printStackTrace()
@@ -315,10 +273,13 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
             val extras = data!!.extras
             val photo = extras!!.get("data") as Bitmap
-            filePath = data.data
-            studentPhoto!!.setImageBitmap(photo)
-            uploadFile()
+            tutorPhoto!!.setImageBitmap(photo)
 
+            var baos:ByteArrayOutputStream = ByteArrayOutputStream(8192)
+            photo.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+            var data = baos.toByteArray()
+            val imageRef = storageReference!!.child("photo/"+uid)
+            imageRef.putBytes(data)
         }
 
     }
@@ -342,24 +303,13 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
 
     private fun uploadFile(){
-
         if(filePath !== null){
-//            Toast.makeText(applicationContext, "Uploading...", Toast.LENGTH_SHORT).show()
             val imageRef = storageReference!!.child("photo/"+uid)
             imageRef.putFile(filePath!!)
-//                    .addOnSuccessListener { Toast.makeText(applicationContext, "File Uploaded...", Toast.LENGTH_SHORT).show() }
-//                    .addOnFailureListener{ Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show() }
-//                    .addOnProgressListener {
-//                        takeSnapShot->
-//                        val progress = 100 * takeSnapShot.bytesTransferred/ takeSnapShot.totalByteCount
-//                        Toast.makeText(applicationContext, "Uploaded"+progress.toInt()+"%...", Toast.LENGTH_SHORT).show()
-//
-//                    }
-
         }
 
-
-
     }
+
+
 
 }

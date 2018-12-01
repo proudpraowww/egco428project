@@ -25,6 +25,7 @@ import kotlinx.android.synthetic.main.photo_edit_dialog.*
 import java.io.IOException
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 
@@ -228,7 +229,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
-            val convertView = inflater.inflate(R.layout.student_edit_dialog, null) as View
+            val convertView = inflater.inflate(R.layout.edit_dialog, null) as View
             alertDialog.setView(convertView)
             var name = convertView.findViewById<View>(R.id.editName) as EditText
             var surename = convertView.findViewById<View>(R.id.editSurename) as EditText
@@ -321,9 +322,12 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
             val extras = data!!.extras
             val photo = extras!!.get("data") as Bitmap
-            filePath = data.data
             studentPhoto!!.setImageBitmap(photo)
-            uploadFile()
+            var baos: ByteArrayOutputStream = ByteArrayOutputStream(8192)
+            photo.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+            var data = baos.toByteArray()
+            val imageRef = storageReference!!.child("photo/"+uid)
+            imageRef.putBytes(data)
 
         }
 

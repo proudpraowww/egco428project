@@ -1,5 +1,6 @@
 package com.egco428.egco428project.Fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -9,7 +10,12 @@ import android.view.ViewGroup
 import android.widget.*
 import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
-import kotlinx.android.synthetic.main.row_request.view.*
+import android.view.MotionEvent
+import android.view.GestureDetector.SimpleOnGestureListener
+import android.text.method.Touch.onTouchEvent
+import android.view.GestureDetector
+import android.view.View.OnTouchListener
+import kotlinx.android.synthetic.main.row_tutor_request.view.*
 
 class RequestFragment: Fragment() {
 
@@ -57,7 +63,7 @@ class RequestFragment: Fragment() {
 
                 val layoutInflater = LayoutInflater.from(viewGroup!!.context)
                 rowRequest = layoutInflater.inflate(R.layout.row_request, viewGroup, false)
-                val viewHolder = ViewHolder(rowRequest.imageView, rowRequest.nameText, rowRequest.lastnameText, rowRequest.courseText, rowRequest.telText)
+                val viewHolder = ViewHolder(rowRequest.imageView, rowRequest.nameText, rowRequest.lastnameText, rowRequest.courseText, rowRequest.telText, rowRequest.answerLayout)
                 rowRequest.tag = viewHolder
 
             } else {
@@ -74,10 +80,16 @@ class RequestFragment: Fragment() {
             val acceptBtn = rowRequest.findViewById(R.id.acceptBtn) as Button
             val rejectBtn = rowRequest.findViewById(R.id.rejectBtn) as Button
 
-            acceptBtn.setOnClickListener {
-
-                //Log.d("Accept", "row " + members.get(position).name)
+            rowRequest.setOnClickListener {
+                Log.d("Click", "row " + members.get(position).name)
+                viewHolder.answerLayout.visibility = View.GONE
             }
+
+            acceptBtn.setOnClickListener {
+                //Log.d("Accept", "row " + members.get(position).name)
+                viewHolder.answerLayout.visibility = View.GONE
+            }
+
             rejectBtn.setOnClickListener{
                 Log.d("Reject", "row " + members.get(position).name)
                 rowRequest.animate().setDuration(1500).alpha(0F).withEndAction(){
@@ -85,13 +97,14 @@ class RequestFragment: Fragment() {
                     notifyDataSetChanged()
                     rowRequest.setAlpha(1.0F)
                 }
+
             }
 
             return rowRequest
 
         }
 
-        private class ViewHolder(val imageView: ImageView, val nameText: TextView, val lastnameText: TextView, val courseText: TextView, val telText: TextView)
+        private class ViewHolder(val imageView: ImageView, val nameText: TextView, val lastnameText: TextView, val courseText: TextView, val telText: TextView, val answerLayout: LinearLayout)
     }
 
 }
