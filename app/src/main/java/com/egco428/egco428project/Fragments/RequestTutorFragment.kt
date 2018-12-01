@@ -25,9 +25,9 @@ class RequestTutorFragment: Fragment() {
 
         members = ArrayList<Member>()
 
-        members!!.add(Member("1","a@mail.com","123456","Napasorn","Suesagiamsakul","student","0897446363","","","","","",""))
-        members!!.add(Member("2","b@mail.com","123456","Sirapop","Kamrat","student","0971515794","","","","","",""))
-        members!!.add(Member("2","b@mail.com","123456","Gus","Dekdok","student","0812345678","","","","","",""))
+        members!!.add(Member("1","a@mail.com","123456","Napasorn","Suesagiamsakul","student","0897446363","","","","","","",""))
+        members!!.add(Member("2","b@mail.com","123456","Sirapop","Kamrat","student","0971515794","","","","","","",""))
+        members!!.add(Member("2","b@mail.com","123456","Gus","Dekdok","student","0812345678","","","","","","",""))
 
         requestListView.adapter = requestListAdapter(members!!)
 
