@@ -25,6 +25,7 @@ class SignupActivity : AppCompatActivity() {
     lateinit var database: DatabaseReference
     private var isSigninScreen: Boolean? = true
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
@@ -95,9 +96,9 @@ class SignupActivity : AppCompatActivity() {
         var password = passwordStudentEdittext.text.toString()
         var name = nameStudentEdittext.text.toString()
         var lastname = lastnameStudentEdittext.text.toString()
-        var phone = phoneStudentEdittext.text.toString()
         var school = schoolEdittext.text.toString()
-        val user = FirebaseAuth.getInstance().currentUser
+        var phone = phoneStudentEdittext.text.toString()
+        //val user = FirebaseAuth.getInstance().currentUser
 
         if(!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !lastname.isEmpty() && !phone.isEmpty()
                 && password.length >= 6  && !school.isEmpty()) {
@@ -108,8 +109,8 @@ class SignupActivity : AppCompatActivity() {
                             mAuth!!.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener{
                                         //val messageId = database.push().key
-                                        Log.d("Email Login",email)
-                                        val messageData = Member(user!!.uid,email, password, name,lastname,"student",phone,school,"","","","","")
+                                        val user = FirebaseAuth.getInstance().currentUser
+                                        val messageData = Member(user!!.uid,email, password, name,lastname,"student",phone,school,"","","","","","")
                                         database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
                                             Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
                                         })
@@ -124,6 +125,7 @@ class SignupActivity : AppCompatActivity() {
                                                         finish()
                                                     } else {
                                                         // If sign in fails, display a message to the user.
+                                                        Log.d("Signin","Error Failed")
                                                         Toast.makeText(applicationContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
@@ -145,10 +147,12 @@ class SignupActivity : AppCompatActivity() {
         var lastname = lastnameTeacherEdittext.text.toString()
         var phone = phoneTeacherEdittext.text.toString()
         var subject = subjectTeacherEdittext.text.toString()
-        val user = FirebaseAuth.getInstance().currentUser
+        var course_price = coursePriceTeacherEdittext.text.toString()
+
+        //val user = FirebaseAuth.getInstance().currentUser
 
         if(!email.isEmpty() && !password.isEmpty() && !name.isEmpty() && !lastname.isEmpty() && !phone.isEmpty()
-                && password.length >= 6 && !subject.isEmpty()) {
+                && password.length >= 6 && !subject.isEmpty() && !course_price.isEmpty()) {
             mAuth!!.fetchProvidersForEmail(emailTeacherEdittext.text.toString())
                     .addOnCompleteListener(){
                         var check = !it.getResult().providers!!.isEmpty()
@@ -156,8 +160,8 @@ class SignupActivity : AppCompatActivity() {
                             mAuth!!.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener{
                                         //val messageId = database.push().key
-                                        Log.d("Email Login",email)
-                                        val messageData = Member(user!!.uid,email, password, name,lastname,"teacher",phone,"","","","","",subject)
+                                        val user = FirebaseAuth.getInstance().currentUser
+                                        val messageData = Member(user!!.uid,email, password, name,lastname,"tutor",phone,"","","","","",subject,course_price)
                                         database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
                                             Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
                                         })
@@ -167,16 +171,18 @@ class SignupActivity : AppCompatActivity() {
                                                     if (task.isSuccessful) {
                                                         val user = mAuth!!.getCurrentUser()
                                                         Toast.makeText(applicationContext,"Sigin Success Fully....",Toast.LENGTH_SHORT).show()
-                                                        val intent = Intent(this, MainActivity::class.java)
+                                                        val intent = Intent(this, TutorActivity::class.java)
                                                         startActivity(intent)
                                                         finish()
                                                     } else {
                                                         // If sign in fails, display a message to the user.
+                                                        Log.d("Signin","Error Failed")
                                                         Toast.makeText(applicationContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                     }
                         } else{
+                            Log.d("Register","Error Failed")
                             Toast.makeText(this,"Email already present", Toast.LENGTH_SHORT).show()
                         }
                     }
