@@ -1,7 +1,6 @@
 package com.egco428.egco428project.Fragments
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -14,10 +13,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
+import com.egco428.egco428project.Model.history
+import com.egco428.egco428project.historyAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -26,10 +28,9 @@ import kotlinx.android.synthetic.main.photo_edit_dialog.*
 import java.io.IOException
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.storage.UploadTask
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.*
 
 
 class ProfileTutorFragment: Fragment(), View.OnClickListener {
@@ -44,6 +45,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     lateinit var Name:String
     lateinit var Lastname: String
     lateinit var Credit: String
+    lateinit var historyData: MutableList<history>
 
     private var rootView: View? = null
     private var historyBtn: ImageButton? = null
@@ -54,6 +56,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     private var nameText: TextView? = null
     private var telText: TextView? = null
     private var courseText: TextView? = null
+    private var priceText: TextView? = null
     private var logoutBtn: Button? = null
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
@@ -66,6 +69,20 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_tutor_profile, container, false)
 
+
+
+        var loadingDialog = AlertDialog.Builder(this.activity!!).create()
+        val inflater = layoutInflater
+        val convertView = inflater.inflate(R.layout.loading_dialog, null) as View
+        loadingDialog.setView(convertView)
+        loadingDialog.show()
+
+        Handler().postDelayed({
+            //doSomethingHere()
+            loadingDialog.dismiss()
+
+        }, 3000)
+
         historyBtn = rootView!!.findViewById(R.id.historyBtn) as ImageButton
         creditText = rootView!!.findViewById(R.id.creditText) as TextView
         editBtn = rootView!!.findViewById(R.id.editBtn) as ImageButton
@@ -74,6 +91,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         nameText = rootView!!.findViewById(R.id.user_profile_name) as TextView
         telText = rootView!!.findViewById(R.id.telText) as TextView
         courseText = rootView!!.findViewById(R.id.courseText) as TextView
+        priceText = rootView!!.findViewById(R.id.priceText) as TextView
         logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as Button
 
         historyBtn!!.setOnClickListener(this)
@@ -93,11 +111,11 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             emailText!!.text = "E-mail : " + currentEmail.toString()
         }
 
+
         logoutBtn!!.setOnClickListener {
             logoutKeng()
         }
         val photoRef = storageReference!!.child("photo/"+uid)
-//        println("========================================="+photoRef.downloadUrl.getResult().toString())
 
         val localFile = File.createTempFile("images", "jpg")
         photoRef.getFile(localFile)
@@ -129,14 +147,15 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                         //test
                         Log.d("TutorActivity", it.child("status").value.toString())
                         telText!!.text = "Tel : " + it.child("phone").value.toString()
-                        courseText!!.text = "Course : " + it.child("course").value.toString()
+                        courseText!!.text = "Subject : " + it.child("subject").value.toString()
                         if(it.child("credit").value.toString().isEmpty()){
-                            "Credit : 0"
+                            creditText!!.text = "Credit : 0"
                             Credit = "0".toString()
                         }else{
                             creditText!!.text = "Credit : " + it.child("credit").value.toString()
                             Credit = it.child("credit").value.toString()
                         }
+                        priceText!!.text = "Course price : " + it.child("course_price").value.toString()
                         password = it.child("password").value.toString()
                         id = it.child("id").value.toString()
                     }
@@ -162,14 +181,35 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         if(v === historyBtn){
 
-            val names = arrayOf("A", "B", "C", "D")
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
             val convertView = inflater.inflate(R.layout.history_dialog, null) as View
             alertDialog.setView(convertView)
             val lv = convertView.findViewById<View>(R.id.historyList) as ListView
-            val adapter = ArrayAdapter(this.activity!!, android.R.layout.simple_list_item_1, names)
-            lv.setAdapter(adapter)
+            val noHistory = convertView.findViewById<View>(R.id.noHistory) as TextView
+            historyData = mutableListOf()
+            database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
+                override fun onCancelled(p0: DatabaseError?) {
+
+                }
+
+                override fun onDataChange(p0: DataSnapshot?) {
+                    if (p0!!.exists()){
+                        historyData.clear()
+                        for (i in p0.children){
+                            val message = i.getValue(history::class.java)
+                            historyData.add(message!!)
+                        }
+                        val adapter = historyAdapter(context!!, R.layout.history, historyData,"Student")
+                        lv.adapter = adapter
+                    }
+                    else{
+                        noHistory.visibility = View.VISIBLE
+                    }
+
+
+                }
+            })
             val btn = convertView.findViewById<View>(R.id.backBtn) as Button
             btn.setOnClickListener {
                 alertDialog.dismiss()
@@ -180,11 +220,12 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
-            val convertView = inflater.inflate(R.layout.edit_dialog, null) as View
+            val convertView = inflater.inflate(R.layout.tutor_edit_dialog, null) as View
             alertDialog.setView(convertView)
             var name = convertView.findViewById<View>(R.id.editName) as EditText
             var surename = convertView.findViewById<View>(R.id.editSurename) as EditText
-            var school = convertView.findViewById<View>(R.id.editSchool) as EditText
+            var course = convertView.findViewById<View>(R.id.editCourse) as EditText
+            var price = convertView.findViewById<View>(R.id.editPrice) as EditText
             var tel = convertView.findViewById<View>(R.id.editTel) as EditText
             val save = convertView.findViewById<View>(R.id.saveBtn) as Button
             val cancel = convertView.findViewById<View>(R.id.abolishBtn) as Button
@@ -199,15 +240,18 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                     Lastname = surename.text.toString()
                     database.child(uid).child("lastname").setValue(Lastname)
                 }
-                if(school.text.isNotEmpty()){
-                    courseText!!.text = school.text.toString()
-                    database.child(uid).child("school").setValue(school.text.toString())
+                if(course.text.isNotEmpty()){
+                    courseText!!.text = course.text.toString()
+                    database.child(uid).child("subject").setValue(course.text.toString())
 
                 }
                 if(tel.text.isNotEmpty()){
                     telText!!.text = tel.text.toString()
                     database.child(uid).child("phone").setValue(tel.text.toString())
-
+                }
+                if(price.text.isNotEmpty()){
+                    priceText!!.text = price.text.toString()
+                    database.child(uid).child("course_price").setValue(price.text.toString())
                 }
 
                 val nameLastname = Name + " " + Lastname

@@ -53,7 +53,7 @@ android:layout_height="match_parent">
     </LinearLayout>
 
     <TextView
-        android:id="@+id/courseText"
+        android:id="@+id/schoolText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
@@ -87,7 +87,7 @@ android:layout_height="match_parent">
     app:layout_constraintTop_toBottomOf="@+id/imageView">
 
     <Button
-        android:id="@+id/acceptBtn"
+        android:id="@+id/acceptTutorBtn"
         android:layout_width="10dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -96,7 +96,7 @@ android:layout_height="match_parent">
         android:textColor="@android:color/white" />
 
     <Button
-        android:id="@+id/rejectBtn"
+        android:id="@+id/rejectTutorBtn"
         android:layout_width="10dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
@@ -105,6 +105,30 @@ android:layout_height="match_parent">
         android:text="Reject"
         android:textColor="@android:color/white" />
 </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/waitingLayout"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        android:textAlignment="center"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Waiting for student payment."
+            android:textAlignment="center" />
+
+    </LinearLayout>
 
 <!--<ImageView
     android:id="@+id/imageView2"
