@@ -131,7 +131,8 @@ class SigninActivity : AppCompatActivity() {
                             it.child("longitude").value.toString(),
                             it.child("credit").value.toString(),
                             it.child("subject").value.toString(),
-                            it.child("course_price").value.toString())
+                            it.child("course_price").value.toString(),
+                            it.child("study_status").value.toString())
 
                     memberList!!.add(member)
                 }

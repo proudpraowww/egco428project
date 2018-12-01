@@ -110,7 +110,7 @@ class SignupActivity : AppCompatActivity() {
                                     .addOnCompleteListener{
                                         //val messageId = database.push().key
                                         val user = FirebaseAuth.getInstance().currentUser
-                                        val messageData = Member(user!!.uid,email, password, name,lastname,"student",phone,school,"","","","","","")
+                                        val messageData = Member(user!!.uid,email, password, name,lastname,"student",phone,school,"","","","","","","")
                                         database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
                                             Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
                                         })
@@ -161,7 +161,7 @@ class SignupActivity : AppCompatActivity() {
                                     .addOnCompleteListener{
                                         //val messageId = database.push().key
                                         val user = FirebaseAuth.getInstance().currentUser
-                                        val messageData = Member(user!!.uid,email, password, name,lastname,"tutor",phone,"","","","","",subject,course_price)
+                                        val messageData = Member(user!!.uid,email, password, name,lastname,"tutor",phone,"","","","","",subject,course_price,"")
                                         database.child(user!!.uid).setValue(messageData).addOnCompleteListener({
                                             Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
                                         })
