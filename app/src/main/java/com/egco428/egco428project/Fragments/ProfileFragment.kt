@@ -17,6 +17,8 @@ import android.os.Handler
 import android.provider.MediaStore
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
+import com.egco428.egco428project.Model.studentHistory
+import com.egco428.egco428project.studentHistoryAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -27,6 +29,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.*
 
 
 class ProfileFragment: Fragment(), View.OnClickListener {
@@ -41,6 +44,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     lateinit var Name:String
     lateinit var Lastname: String
     lateinit var Credit: String
+    lateinit var history: MutableList<studentHistory>
+
 
     private var rootView: View? = null
     private var historyBtn: ImageButton? = null
@@ -96,6 +101,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
+
+
         storage = FirebaseStorage.getInstance()
         storageReference = storage!!.reference
 
@@ -106,7 +113,11 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
             emailText!!.text = "E-mail : " + currentEmail.toString()
         }
-
+//   ===================================================================================
+//        val messageId = database.push().key
+//        val messageData = studentHistory(messageId,"praow","Tutor","Thai","400", Date().toString())
+//        database.child(uid).child("history").child(messageId).setValue(messageData)
+//   ===================================================================================
         logoutBtn!!.setOnClickListener {
             logoutKeng()
         }
@@ -142,7 +153,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                         telText!!.text = "Tel : " + it.child("phone").value.toString()
                         schoolText!!.text = "School : " + it.child("school").value.toString()
                         if(it.child("credit").value.toString().isEmpty()){
-                            "Credit : 0"
+                            creditText!!.text = "Credit : 0"
                             Credit = "0".toString()
                         }else{
                             creditText!!.text = "Credit : " + it.child("credit").value.toString()
@@ -172,6 +183,25 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         if(v === historyBtn){
+            history = mutableListOf()
+            database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
+                override fun onCancelled(p0: DatabaseError?) {
+
+                }
+
+                override fun onDataChange(p0: DataSnapshot?) {
+                    if (p0!!.exists()){
+                        history.clear()
+                        for (i in p0.children){
+                            val message = i.getValue(studentHistory::class.java)
+                            history.add(message!!)
+                        }
+//                        val adapter = studentHistoryAdapter(applicationContext, R.layout.messages, msgList)
+//                        listView.adapter = adapter
+                    }
+
+                }
+            })
 
             val names = arrayOf("A", "B", "C", "D")
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -229,7 +259,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
-            val convertView = inflater.inflate(R.layout.edit_dialog, null) as View
+            val convertView = inflater.inflate(R.layout.student_edit_dialog, null) as View
             alertDialog.setView(convertView)
             var name = convertView.findViewById<View>(R.id.editName) as EditText
             var surename = convertView.findViewById<View>(R.id.editSurename) as EditText
