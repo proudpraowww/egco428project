@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:hint="Email"
             android:inputType="textEmailAddress"
-            android:text="keng5@gmail.com"
+            android:text="student@gmail.com"
             android:textColor="#FFFFFF" />
     </android.support.design.widget.TextInputLayout>
 
