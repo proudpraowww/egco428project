@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
-import kotlinx.android.synthetic.main.row_request.view.*
+import kotlinx.android.synthetic.main.row_tutor_request.view.*
 
 class RequestTutorFragment: Fragment() {
 
@@ -56,8 +56,8 @@ class RequestTutorFragment: Fragment() {
             if(convertView == null){
 
                 val layoutInflater = LayoutInflater.from(viewGroup!!.context)
-                rowRequest = layoutInflater.inflate(R.layout.row_request, viewGroup, false)
-                val viewHolder = ViewHolder(rowRequest.imageView, rowRequest.nameText, rowRequest.lastnameText, rowRequest.courseText, rowRequest.telText)
+                rowRequest = layoutInflater.inflate(R.layout.row_tutor_request, viewGroup, false)
+                val viewHolder = ViewHolder(rowRequest.imageView, rowRequest.nameText, rowRequest.lastnameText, rowRequest.courseText, rowRequest.telText, rowRequest.answerLayout)
                 rowRequest.tag = viewHolder
 
             } else {
@@ -74,10 +74,20 @@ class RequestTutorFragment: Fragment() {
             val acceptBtn = rowRequest.findViewById(R.id.acceptBtn) as Button
             val rejectBtn = rowRequest.findViewById(R.id.rejectBtn) as Button
 
+            rowRequest.setOnClickListener {
+                Log.d("Click", "row " + members.get(position).name)
+                if(viewHolder.answerLayout.visibility == View.GONE){
+                    viewHolder.answerLayout.visibility = View.VISIBLE
+                } else if(viewHolder.answerLayout.visibility == View.VISIBLE){
+                    viewHolder.answerLayout.visibility = View.GONE
+                }
+            }
+
             acceptBtn.setOnClickListener {
 
                 //Log.d("Accept", "row " + members.get(position).name)
             }
+
             rejectBtn.setOnClickListener{
                 Log.d("Reject", "row " + members.get(position).name)
                 rowRequest.animate().setDuration(1500).alpha(0F).withEndAction(){
@@ -91,7 +101,7 @@ class RequestTutorFragment: Fragment() {
 
         }
 
-        private class ViewHolder(val imageView: ImageView, val nameText: TextView, val lastnameText: TextView, val courseText: TextView, val telText: TextView)
+        private class ViewHolder(val imageView: ImageView, val nameText: TextView, val lastnameText: TextView, val courseText: TextView, val telText: TextView, val answerLayout: LinearLayout)
     }
 
 }

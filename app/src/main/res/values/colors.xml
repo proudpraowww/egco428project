@@ -3,4 +3,9 @@
     <color name="colorPrimary">#3f51b5</color>
     <color name="colorPrimaryDark">#303f9f</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorAccept">#03dc56</color>
+    <color name="colorAccepted">#5de66b</color>
+    <color name="colorReject">#ed4a6d</color>
+    <color name="colorRejected">#f16c89</color>
 </resources>
