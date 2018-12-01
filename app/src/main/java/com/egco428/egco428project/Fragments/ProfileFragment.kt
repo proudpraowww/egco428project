@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.photo_edit_dialog.*
 import java.io.IOException
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
+import kotlinx.android.synthetic.main.history_dialog.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
@@ -115,7 +116,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         }
 //   ===================================================================================
 //        val messageId = database.push().key
-//        val messageData = studentHistory(messageId,"praow","Tutor","Thai","400", Date().toString())
+//        val messageData = studentHistory(messageId,"na","Tutor","Thai","400", Date().toString())
 //        database.child(uid).child("history").child(messageId).setValue(messageData)
 //   ===================================================================================
         logoutBtn!!.setOnClickListener {
@@ -183,6 +184,12 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         if(v === historyBtn){
+
+            var alertDialog = AlertDialog.Builder(this.activity!!).create()
+            val inflater = layoutInflater
+            val convertView = inflater.inflate(R.layout.history_dialog, null) as View
+            alertDialog.setView(convertView)
+            val lv = convertView.findViewById<View>(R.id.historyList) as ListView
             history = mutableListOf()
             database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
                 override fun onCancelled(p0: DatabaseError?) {
@@ -196,21 +203,12 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                             val message = i.getValue(studentHistory::class.java)
                             history.add(message!!)
                         }
-//                        val adapter = studentHistoryAdapter(applicationContext, R.layout.messages, msgList)
-//                        listView.adapter = adapter
+                        val adapter = studentHistoryAdapter(context!!, R.layout.student_history, history)
+                        lv.adapter = adapter
                     }
 
                 }
             })
-
-            val names = arrayOf("A", "B", "C", "D")
-            var alertDialog = AlertDialog.Builder(this.activity!!).create()
-            val inflater = layoutInflater
-            val convertView = inflater.inflate(R.layout.history_dialog, null) as View
-            alertDialog.setView(convertView)
-            val lv = convertView.findViewById<View>(R.id.historyList) as ListView
-            val adapter = ArrayAdapter(this.activity!!, android.R.layout.simple_list_item_1, names)
-            lv.setAdapter(adapter)
             val btn = convertView.findViewById<View>(R.id.backBtn) as Button
             btn.setOnClickListener {
                 alertDialog.dismiss()
