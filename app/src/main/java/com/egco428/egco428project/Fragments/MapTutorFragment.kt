@@ -22,19 +22,19 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Marker
-import com.egco428.egco428project.LocationLatLng
+
 
 class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private var rootView: View? = null
     private var ERROR_DIALOG_REQUEST:Int = 9001
     lateinit var mapFragment: SupportMapFragment
-    lateinit var data: ArrayList<LocationLatLng>
+//    lateinit var data: ArrayList<LocationLatLng>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_tutor_map, container, false)
-        data = DataProvider.getData()
+//        data = DataProvider.getData()
 
         if (isServicesOK()){
             Toast.makeText(this.activity,"Service Working", Toast.LENGTH_SHORT).show()
@@ -75,8 +75,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         for (i in data){
 //            googleMap!!.addMarker(MarkerOptions().position(LatLng(i.lat, i.lng)))
 //            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(i.lat, i.lng), 10F))
-            googleMap.addMarker(MarkerOptions().position(LatLng(i.lat, i.lng)).title("Marker")).setTag(i)
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(i.lat, i.lng), 10F))
+//            googleMap.addMarker(MarkerOptions().position(LatLng(i.lat, i.lng)).title("Marker")).setTag(i)
+//            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(i.lat, i.lng), 10F))
         }
 
         googleMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
@@ -89,13 +89,13 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 val v = layoutInflater.inflate(R.layout.info_window, null)
 
                 val msg = v.findViewById(R.id.message) as TextView
-                val lat = v.findViewById(R.id.lat) as TextView
-                val lng = v.findViewById(R.id.lng) as TextView
-
-                var dataX : LocationLatLng = marker.getTag() as LocationLatLng
-                msg.text = dataX.msg
-                lat.text = "Latitude: " + marker.position.latitude
-                lng.text = "Longitude: " + marker.position.longitude
+//                val lat = v.findViewById(R.id.lat) as TextView
+//                val lng = v.findViewById(R.id.lng) as TextView
+//
+//                var dataX : LocationLatLng = marker.getTag() as LocationLatLng
+//                msg.text = dataX.msg
+//                lat.text = "Latitude: " + marker.position.latitude
+//                lng.text = "Longitude: " + marker.position.longitude
 
                 return v
             }
@@ -105,25 +105,25 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     }
 
     override fun onInfoWindowClick(marker: Marker) {
-        var dataX : LocationLatLng = marker.getTag() as LocationLatLng
+//        var dataX : LocationLatLng = marker.getTag() as LocationLatLng
 //        Toast.makeText(this.activity ,dataX.id.toString() + dataX.msg,   Toast.LENGTH_SHORT).show()
 
         var detailDialog = AlertDialog.Builder(this.activity!!).create()
         val view = layoutInflater.inflate(R.layout.dialog_info_googlemap, null) as View
         detailDialog.setView(view)
 
-        val idText = view.findViewById<View>(R.id.idText) as TextView
-        val messageText = view.findViewById<View>(R.id.messageText) as TextView
-        val latLng = view.findViewById<View>(R.id.latLng) as TextView
+//        val idText = view.findViewById<View>(R.id.idText) as TextView
+//        val messageText = view.findViewById<View>(R.id.messageText) as TextView
+//        val latLng = view.findViewById<View>(R.id.latLng) as TextView
 
         val requestBtn = view.findViewById<View>(R.id.requestBtn) as Button
         val cancelBtn = view.findViewById<View>(R.id.cancelBtn) as Button
 
-        var latlong:String = dataX.lat.toString()+ " : "+ dataX.lng.toString()
+//        var latlong:String = dataX.lat.toString()+ " : "+ dataX.lng.toString()
 
-        idText.text = dataX.id.toString()
-        messageText.text = dataX.msg
-        latLng.text = latlong
+//        idText.text = dataX.id.toString()
+//        messageText.text = dataX.msg
+//        latLng.text = latlong
 
         requestBtn.setOnClickListener {
 

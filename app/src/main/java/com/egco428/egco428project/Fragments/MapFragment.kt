@@ -1,16 +1,25 @@
 package com.egco428.egco428project.Fragments
 
+import android.Manifest
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.provider.Settings
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 
 import android.support.v7.app.AlertDialog
@@ -31,6 +40,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.database.*
 import com.egco428.egco428project.Model.Member
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
@@ -56,9 +66,10 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
 
-//    private var locationManager: LocationManager? = null
-//    private var locationListener: LocationListener? = null
-//    private var currentUserLocation: LatLng = LatLng(0.0, 0.0)
+
+    private var locationManager: LocationManager? = null
+    private var locationListener: LocationListener? = null
+    private var currentUserLocation: LatLng = LatLng(0.0, 0.0)
 
     lateinit var mGoogleMap: GoogleMap
 
@@ -68,28 +79,31 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         toastShake = Toast.makeText(this.activity,"Shake to find tutor",Toast.LENGTH_SHORT)
         toastShowing = Toast.makeText(this.activity, "Showing tutor", Toast.LENGTH_SHORT)
 
+        locationManager = activity!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationListener = object : LocationListener{
+
+            override fun onLocationChanged(location: Location?) {
+                currentUserLocation = LatLng(location!!.latitude, location!!.longitude)
+                println(location!!.latitude)
+                println(location!!.longitude)
+            }
+
+            override fun onProviderDisabled(p0: String?) {
+                val i = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(i)
+            }
+
+            override fun onProviderEnabled(p0: String?) {
+            }
+
+            override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
+            }
+
+        }
+       requestLocation()
+
         if (isServicesOK()){
             Toast.makeText(this.activity,"Service Working", Toast.LENGTH_SHORT).show()
-
-//            locationManager = activity!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-//            locationListener = object : LocationListener{
-//
-//                override fun onLocationChanged(location: Location?) {
-//                    currentUserLocation = LatLng(location!!.latitude, location!!.longitude)
-//                }
-//
-//                override fun onProviderDisabled(p0: String?) {
-//
-//                }
-//
-//                override fun onProviderEnabled(p0: String?) {
-//                }
-//
-//                override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
-//                }
-//
-//            }
-//            requestLocation()
 
             toastShake!!.show()
 
@@ -100,6 +114,13 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
             storage = FirebaseStorage.getInstance()
             storageReference = storage.reference
+
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                currentUserUid = user.uid
+            }else{
+                println("current user have problem !!!")
+            }
 
             mapFragment = childFragmentManager.findFragmentById(R.id.gMap) as SupportMapFragment
             mapFragment.getMapAsync(this)
@@ -133,8 +154,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 //                .title("Marker in Sydney")
 //                .snippet("snippp"))
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-//        googleMap.addMarker(MarkerOptions().position(currentUserLocation).title("You are here")).showInfoWindow()
-//        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 6f))
+        googleMap.addMarker(MarkerOptions().position(currentUserLocation).title("You are here")).showInfoWindow()
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 4f))
 
         mGoogleMap = googleMap
         googleMap.setOnInfoWindowClickListener(this)
@@ -189,7 +210,10 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                                 it.child("statusOnOff").value.toString(),
                                 it.child("latitude").value.toString(),
                                 it.child("longitude").value.toString(),
-                                it.child("credit").value.toString())
+                                it.child("credit").value.toString(),
+                                it.child("subject").value.toString(),
+                                it.child("course_price").value.toString(),
+                                it.child("study_status").value.toString())
 
                         println("========================================================")
                         println(dataPersonal.latitude  + dataPersonal.longitude)
@@ -250,6 +274,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     override fun onInfoWindowClick(marker: Marker) {
         var personData : Member = marker.getTag() as Member
+        var alreadyRequest : Int = 0
 //        Toast.makeText(this.activity ,dataX.id.toString() + dataX.msg,   Toast.LENGTH_SHORT).show()
 
         var detailDialog = AlertDialog.Builder(this.activity!!).create()
@@ -271,14 +296,30 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         lName.text = "LastName : "+ personData.lastname
         phone.text = "Phone : "+ personData.phone
         status.text = "Status : "+ personData.status
-//        subject.text = "Subject : "+ personData.s
+        subject.text = "Subject : "+ personData.subject
+
+        database.child(personData.id).child("request").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val children = dataSnapshot!!.children
+                children.forEach{
+                    println(it.key)
+                    if(it.key.toString() == currentUserUid){
+                        println("==========================already request")
+                        requestBtn.isEnabled = false
+                        Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read
+            }
+        })
 
         requestBtn.setOnClickListener {
-            Toast.makeText(this.activity, "Request sended successful", Toast.LENGTH_SHORT).show()
-            saveRequest(personData)
+            saveRequestToStudentUser(personData)
+            saveRequestToTutor(personData)
             requestBtn.isEnabled = false
-
-//            detailDialog.dismiss()
+            Toast.makeText(activity, "Request sended successful", Toast.LENGTH_SHORT).show()
         }
 
         cancelBtn.setOnClickListener{
@@ -287,38 +328,40 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         detailDialog.show()
     }
 
-    private fun saveRequest(personalData : Member){
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
-            currentUserUid = user.uid
-            database.child(currentUserUid).child("request").child(currentUserUid).child("name").setValue(personalData.name)
-            database.child(currentUserUid).child("request").child(currentUserUid).child("lastname").setValue(personalData.lastname)
-            database.child(currentUserUid).child("request").child(currentUserUid).child("phone").setValue(personalData.phone)
-//            database.child(currentUserUid).child("request").child(currentUserUid).setValue(personalData.)
-        }
-
-
-
-//        Name = name.text.toString()
-//        database.child(uid).child("name").setValue(Name)
-//        var reqeustDatabase :DatabaseReference = FirebaseDatabase.getInstance().getReference("Members")
-//        database.child(personalData.id).child("request").child(personalData.id).setValue(personalData.name)
-//        database.child(personalData.id).child("request").child(personalData.id).setValue(personalData.lastname)
-//        database.child(personalData.id).child("request").child(personalData.id).setValue(personalData.phone)
-//        database.child(personalData.id).child("request").child(personalData.id).setValue(personalData.)
-
+    private fun saveRequestToStudentUser(personalData : Member){
+            database.child(currentUserUid).child("request").child(personalData.id).child("name").setValue(personalData.name)
+            database.child(currentUserUid).child("request").child(personalData.id).child("lastname").setValue(personalData.lastname)
+            database.child(currentUserUid).child("request").child(personalData.id).child("phone").setValue(personalData.phone)
+            database.child(currentUserUid).child("request").child(personalData.id).child("subject").setValue(personalData.subject)
+            database.child(currentUserUid).child("request").child(personalData.id).child("response").setValue("")
 
     }
-//    private fun requestLocation(){
-//        if(ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) !=  PackageManager.PERMISSION_GRANTED){
-//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-//                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET),10)
-//            }
-//            return
-//        }
-//        locationManager!!.requestSingleUpdate("gps",locationListener,null)
-//
-//    }
+    private fun saveRequestToTutor(personalData : Member){
+            database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    database.child(personalData.id).child("request").child(currentUserUid).child("name").setValue(dataSnapshot.child("name").value)
+                    database.child(personalData.id).child("request").child(currentUserUid).child("lastname").setValue(dataSnapshot.child("lastname").value)
+                    database.child(personalData.id).child("request").child(currentUserUid).child("phone").setValue(dataSnapshot.child("phone").value)
+                    database.child(personalData.id).child("request").child(currentUserUid).child("school").setValue(dataSnapshot.child("school").value)
+                    database.child(personalData.id).child("request").child(currentUserUid).child("response").setValue("")
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Failed to read
+                }
+            })
+    }
+
+    private fun requestLocation(){
+        if(ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) !=  PackageManager.PERMISSION_GRANTED){
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET),10)
+            }
+            return
+        }
+        Toast.makeText(activity, "in reqLocation", Toast.LENGTH_SHORT).show()
+        locationManager!!.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null)
+    }
 
     override fun onPause() {
         super.onPause()
