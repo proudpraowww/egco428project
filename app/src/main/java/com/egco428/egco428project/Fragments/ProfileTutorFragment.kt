@@ -18,6 +18,8 @@ import android.provider.MediaStore
 import android.util.Log
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
+import com.egco428.egco428project.Model.history
+import com.egco428.egco428project.historyAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -28,6 +30,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.*
 
 
 class ProfileTutorFragment: Fragment(), View.OnClickListener {
@@ -42,6 +45,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     lateinit var Name:String
     lateinit var Lastname: String
     lateinit var Credit: String
+    lateinit var historyData: MutableList<history>
 
     private var rootView: View? = null
     private var historyBtn: ImageButton? = null
@@ -64,6 +68,8 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_tutor_profile, container, false)
+
+
 
         var loadingDialog = AlertDialog.Builder(this.activity!!).create()
         val inflater = layoutInflater
@@ -105,11 +111,11 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             emailText!!.text = "E-mail : " + currentEmail.toString()
         }
 
+
         logoutBtn!!.setOnClickListener {
             logoutKeng()
         }
         val photoRef = storageReference!!.child("photo/"+uid)
-//        println("========================================="+photoRef.downloadUrl.getResult().toString())
 
         val localFile = File.createTempFile("images", "jpg")
         photoRef.getFile(localFile)
@@ -175,14 +181,35 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         if(v === historyBtn){
 
-            val names = arrayOf("A", "B", "C", "D")
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
             val inflater = layoutInflater
             val convertView = inflater.inflate(R.layout.history_dialog, null) as View
             alertDialog.setView(convertView)
             val lv = convertView.findViewById<View>(R.id.historyList) as ListView
-            val adapter = ArrayAdapter(this.activity!!, android.R.layout.simple_list_item_1, names)
-            lv.setAdapter(adapter)
+            val noHistory = convertView.findViewById<View>(R.id.noHistory) as TextView
+            historyData = mutableListOf()
+            database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
+                override fun onCancelled(p0: DatabaseError?) {
+
+                }
+
+                override fun onDataChange(p0: DataSnapshot?) {
+                    if (p0!!.exists()){
+                        historyData.clear()
+                        for (i in p0.children){
+                            val message = i.getValue(history::class.java)
+                            historyData.add(message!!)
+                        }
+                        val adapter = historyAdapter(context!!, R.layout.history, historyData,"Student")
+                        lv.adapter = adapter
+                    }
+                    else{
+                        noHistory.visibility = View.VISIBLE
+                    }
+
+
+                }
+            })
             val btn = convertView.findViewById<View>(R.id.backBtn) as Button
             btn.setOnClickListener {
                 alertDialog.dismiss()

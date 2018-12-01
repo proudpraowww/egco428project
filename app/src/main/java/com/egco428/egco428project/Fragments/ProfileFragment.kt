@@ -17,8 +17,9 @@ import android.os.Handler
 import android.provider.MediaStore
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
-import com.egco428.egco428project.Model.studentHistory
-import com.egco428.egco428project.studentHistoryAdapter
+import com.egco428.egco428project.Model.history
+import com.egco428.egco428project.R.id.visible
+import com.egco428.egco428project.historyAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -27,7 +28,6 @@ import kotlinx.android.synthetic.main.photo_edit_dialog.*
 import java.io.IOException
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
-import kotlinx.android.synthetic.main.history_dialog.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
@@ -45,7 +45,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     lateinit var Name:String
     lateinit var Lastname: String
     lateinit var Credit: String
-    lateinit var history: MutableList<studentHistory>
+    lateinit var historyData: MutableList<history>
 
 
     private var rootView: View? = null
@@ -114,11 +114,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
             emailText!!.text = "E-mail : " + currentEmail.toString()
         }
-//   ===================================================================================
-//        val messageId = database.push().key
-//        val messageData = studentHistory(messageId,"na","Tutor","Thai","400", Date().toString())
-//        database.child(uid).child("history").child(messageId).setValue(messageData)
-//   ===================================================================================
+
         logoutBtn!!.setOnClickListener {
             logoutKeng()
         }
@@ -190,7 +186,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             val convertView = inflater.inflate(R.layout.history_dialog, null) as View
             alertDialog.setView(convertView)
             val lv = convertView.findViewById<View>(R.id.historyList) as ListView
-            history = mutableListOf()
+            val noHistory = convertView.findViewById<View>(R.id.noHistory) as TextView
+            historyData = mutableListOf()
             database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
                 override fun onCancelled(p0: DatabaseError?) {
 
@@ -198,13 +195,16 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
                 override fun onDataChange(p0: DataSnapshot?) {
                     if (p0!!.exists()){
-                        history.clear()
+                        historyData.clear()
                         for (i in p0.children){
-                            val message = i.getValue(studentHistory::class.java)
-                            history.add(message!!)
+                            val message = i.getValue(history::class.java)
+                            historyData.add(message!!)
                         }
-                        val adapter = studentHistoryAdapter(context!!, R.layout.student_history, history)
+                        val adapter = historyAdapter(context!!, R.layout.history, historyData,"Tutor")
                         lv.adapter = adapter
+                    }
+                    else{
+                        noHistory.visibility = View.VISIBLE
                     }
 
                 }
