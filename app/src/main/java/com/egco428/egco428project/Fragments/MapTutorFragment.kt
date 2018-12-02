@@ -39,8 +39,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     private var rootView: View? = null
     private var ERROR_DIALOG_REQUEST:Int = 9001
     lateinit var mapFragment: SupportMapFragment
-    lateinit var personalData: Member
     lateinit var currentUserUid: String
+    lateinit var personalData: Member
     lateinit var studyPersonData: Member
 
     lateinit var database: DatabaseReference
@@ -52,6 +52,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     lateinit var userMarker: Marker
     lateinit var studyMarker: Marker
     private var checkMarker: Int = 0
+    private var checkStudyMarker: Int = 0
 
     private var studyLocation = LatLng(0.0, 0.0)
 
@@ -117,6 +118,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 println(studyPerson)
                 if(studyPerson == ""){
                     Toast.makeText(activity, "No study Person right now.", Toast.LENGTH_SHORT).show()
+
                 }else{
                     studyPersonData = Member(
                             dataSnapshot.child(studyPerson).child("id").value.toString(),
@@ -141,11 +143,11 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
 
                     studyLocation  = LatLng(studyPersonData.latitude.toDouble(), studyPersonData.longitude.toDouble())
 
-                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
+                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
                     var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
 
-                    makeUserMarkerCurrentLocation(mGoogleMap, studyLocation)
-                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position(LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
+                    makeStudyMarkerCurrentLocation(mGoogleMap, studyLocation)
+                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
                     studyMarker.setTag(studyPersonData)
                 }
 
@@ -187,7 +189,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
 
                 makeUserMarkerCurrentLocation(mGoogleMap, currentLocation)
-                userMarker = mGoogleMap.addMarker(MarkerOptions().position(LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
+                userMarker = mGoogleMap.addMarker(MarkerOptions().position(currentLocation).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
                 userMarker.setTag(personalData)
             }
 
@@ -197,9 +199,19 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         })
     }
 
+    private fun makeStudyMarkerCurrentLocation(googleMap: GoogleMap, currentLocation: LatLng){
+//        if (checkStudyMarker == 0){
+//            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 2f))
+//        }
+        if(checkStudyMarker > 0){
+            studyMarker.remove()
+        }
+        checkStudyMarker = 1
+    }
+
     private fun makeUserMarkerCurrentLocation(googleMap: GoogleMap, currentLocation: LatLng){
         if (checkMarker == 0){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 5f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 2f))
         }
         if(checkMarker > 0){
             userMarker.remove()

@@ -181,7 +181,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     private fun makeUserMarkerCurrentLocation(googleMap: GoogleMap){
         if (checkMarker == 0){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 10f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 5f))
         }
         if(checkMarker > 0){
             userMarker.remove()
