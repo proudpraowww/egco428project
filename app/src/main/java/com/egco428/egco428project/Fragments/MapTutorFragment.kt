@@ -144,11 +144,11 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
 
                     studyLocation  = LatLng(studyPersonData.latitude.toDouble(), studyPersonData.longitude.toDouble())
 
-                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
+                    /*var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
                     var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
-
+*/
                     makeStudyMarkerCurrentLocation(mGoogleMap, studyLocation)
-                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
+                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker")) //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
                     studyMarker.setTag(studyPersonData)
                 }
 
