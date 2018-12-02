@@ -163,9 +163,9 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             return
         }
         //use this if run on real mobile
-//        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0f,locationListener)
+        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0f,locationListener)
         //use this if run on emulator
-        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+//        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
 
 //            locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0f,locationListener)
     }
@@ -181,7 +181,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     private fun makeUserMarkerCurrentLocation(googleMap: GoogleMap){
         if (checkMarker == 0){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 10f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 5f))
         }
         if(checkMarker > 0){
             userMarker.remove()
@@ -250,7 +250,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                                 it.child("credit").value.toString(),
                                 it.child("subject").value.toString(),
                                 it.child("course_price").value.toString(),
-                                it.child("study_status").value.toString())
+                                it.child("study_status").value.toString(),
+                                it.child("start_time").value.toString())
 
                         println("========================================================")
                         println(dataTutor.latitude  + dataTutor.longitude)
