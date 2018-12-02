@@ -1,6 +1,7 @@
 package com.egco428.egco428project.Fragments
 
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,12 +14,12 @@ import com.egco428.egco428project.Model.RequestTutor
 import com.egco428.egco428project.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.fragment_tutor_request.*
 import kotlinx.android.synthetic.main.row_tutor_request.view.*
 
 class RequestTutorFragment: Fragment() {
 
     private var rootView: View? = null
-    private var members: ArrayList<Member>? = null
     private var requestTutor: ArrayList<RequestTutor> = ArrayList()
     private var requestListView: ListView? = null
     lateinit var database: DatabaseReference
@@ -27,19 +28,38 @@ class RequestTutorFragment: Fragment() {
     lateinit var studentKey: String
     lateinit var tutor_study_status: String
     lateinit var tutor_id: String
+    lateinit var student_id: String
+    lateinit var subject: String
+    lateinit var nameStudent: TextView
+    lateinit var lastnameStudent: TextView
+    lateinit var subjectStudent: TextView
+    lateinit var timeStudent: TextView
+    lateinit var finishBtn: Button
+    lateinit var studentLayout: ConstraintLayout
+    lateinit var textLayout: ConstraintLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_tutor_request, container, false)
 
         requestListView = rootView!!.findViewById<ListView>(R.id.requestListView)
+        nameStudent = rootView!!.findViewById(R.id.nameStudent)
+        lastnameStudent = rootView!!.findViewById(R.id.lastnameStudent)
+        subjectStudent = rootView!!.findViewById(R.id.subjectStudent)
+        timeStudent = rootView!!.findViewById(R.id.timeStudent)
+        finishBtn = rootView!!.findViewById(R.id.finishBtn)
+
+        studentLayout = rootView!!.findViewById(R.id.studentLayout)
+        textLayout = rootView!!.findViewById(R.id.textLayout)
+
         database = FirebaseDatabase.getInstance().getReference("Members")
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             currentEmail = user.email.toString()
             uid = user.uid
         }
-        database.addListenerForSingleValueEvent(object : ValueEventListener {
+
+        database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val children = dataSnapshot!!.children
                 requestTutor.clear()
@@ -53,25 +73,89 @@ class RequestTutorFragment: Fragment() {
                             //Log.d("Request name", it.child("name").value.toString())
                             //Log.d("Key", it.key)
                             //studentKey = it.key
-                            val request = RequestTutor(it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("school").value.toString(), it.child("phone").value.toString(), it.key, tutor_study_status, tutor_id)
+                            val request = RequestTutor(it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("school").value.toString(), it.child("phone").value.toString(), it.key, tutor_study_status, tutor_id, it.child("response").value.toString())
                             requestTutor!!.add(request)
                         }
                     }
                 }
-                requestListView!!.adapter = RequestTutorFragment.requestListAdapter(database, currentEmail, requestTutor!!)
+
+                if(requestTutor.size > 0){
+                    studentLayout!!.visibility = View.GONE
+                    textLayout.visibility = View.GONE
+                    requestListView!!.adapter = RequestTutorFragment.requestListAdapter(database, currentEmail, requestTutor!!)
+                    requestListView!!.visibility = View.VISIBLE
+                } else {
+                    if(!tutor_study_status.equals("")){
+                        requestListView!!.visibility = View.GONE
+                        textLayout!!.visibility = View.GONE
+                        studentLayout!!.visibility = View.VISIBLE
+
+                        //get student id from tutor_study_status
+                        database.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                val children = dataSnapshot!!.children
+                                children.forEach{
+                                    if(it.key.equals(uid)){ //tutor
+                                        student_id = it.child("study_status").value.toString() //student_id
+                                        subject = it.child("subject").value.toString() //student_id
+                                    }
+                                }
+                            }
+                            override fun onCancelled(error: DatabaseError) {
+                                // Failed to read
+                            }
+                        })
+
+                        //set tutor layout
+                        database.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                val children = dataSnapshot!!.children
+                                children.forEach{
+                                    if(it.key.equals(student_id)){ //student
+                                        nameStudent.text = "Name : \t" + it.child("name").value.toString()
+                                        lastnameStudent.text ="Lastname : \t" + it.child("lastname").value.toString()
+                                        subjectStudent.text = "Subject : \t" + subject
+                                        timeStudent.text = "Start Time : \t" + it.child("start_time").value.toString()
+                                    }
+                                }
+                            }
+                            override fun onCancelled(error: DatabaseError) {
+                                // Failed to read
+                            }
+                        })
+                    } else {
+                        requestListView!!.visibility = View.GONE
+                        studentLayout!!.visibility = View.GONE
+                        textLayout.visibility = View.VISIBLE
+                    }
+                }
             }
             override fun onCancelled(error: DatabaseError) {
                 // Failed to read
             }
         })
 
-        members = ArrayList<Member>()
-        members!!.add(Member("1","a@mail.com","123456","Napasorn","Suesagiamsakul","student","0897446363","","","","","","","",""))
-        members!!.add(Member("2","b@mail.com","123456","Sirapop","Kamrat","student","0971515794","","","","","","","",""))
-        members!!.add(Member("2","b@mail.com","123456","Gus","Dekdok","student","0812345678","","","","","","","",""))
-
         if(requestTutor != null){
             requestListView!!.adapter = RequestTutorFragment.requestListAdapter(database, currentEmail, requestTutor!!)
+        }
+
+        finishBtn.setOnClickListener{
+            database.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    val children = dataSnapshot!!.children
+                    children.forEach{
+                        if(it.key.equals(uid)){
+                            database.child(uid).child("study_status").setValue("")
+                            database.child(uid).child("start_time").setValue("")
+                            database.child(it.child("study_status").value.toString()).child("study_status").setValue("")
+                            database.child(it.child("study_status").value.toString()).child("start_time").setValue("")
+                        }
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    // Failed to read
+                }
+            })
         }
 
         return rootView
@@ -81,6 +165,7 @@ class RequestTutorFragment: Fragment() {
 
         lateinit var student_study_status: String
         lateinit var tutor_response: String
+        private var itemId: Long? = null
 
         override fun getCount(): Int {
             return requestTutor.size
@@ -120,26 +205,12 @@ class RequestTutorFragment: Fragment() {
             val acceptTutorBtn = rowRequest.findViewById(R.id.acceptTutorBtn) as Button
             val rejectTutorBtn = rowRequest.findViewById(R.id.rejectTutorBtn) as Button
 
-            database.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    val children = dataSnapshot!!.children
-                    children.forEach{
-                        if(it.child("email").value.toString().equals(currentEmail)){
-                            it.child("request").children.forEach{
-                                tutor_response = it.child("response").value.toString()
-                                if(tutor_response.equals("true")){
-                                    viewHolder.imageView.setImageResource(R.drawable.accept_icon)
-                                    viewHolder.waitingLayout.visibility = View.VISIBLE
-                                    viewHolder.answerLayout.visibility = View.GONE
-                                }
-                            }
-                        }
-                    }
-                }
-                override fun onCancelled(error: DatabaseError) {
-                    // Failed to read
-                }
-            })
+            if(requestTutor.get(position).response.equals("true")){
+                viewHolder.imageView.setImageResource(R.drawable.accept_icon)
+                viewHolder.answerLayout.visibility = View.GONE
+            } else {
+                viewHolder.waitingLayout.visibility = View.GONE
+            }
 
             rowRequest.setOnClickListener {
                 Log.d("Click", "row " + requestTutor.get(position).name)
@@ -148,8 +219,11 @@ class RequestTutorFragment: Fragment() {
                         val children = dataSnapshot!!.children
                         children.forEach{
                             if(it.child("email").value.toString().equals(currentEmail)){
-                                it.child("request").children.forEach{
+                                for(it in it.child("request").children){
                                     tutor_response = it.child("response").value.toString()
+                                    if(tutor_response.equals("true")){
+                                        return@forEach
+                                    }
                                 }
                             }
                         }
@@ -178,7 +252,6 @@ class RequestTutorFragment: Fragment() {
             acceptTutorBtn.setOnClickListener {
                 //Log.d("Accept", "row " + members.get(position).name)
                 //study_status at student+tutor == null? and response at student == null? if true > accepted
-
                 database.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         val children = dataSnapshot!!.children
@@ -210,10 +283,6 @@ class RequestTutorFragment: Fragment() {
                         // Failed to read
                     }
                 })
-
-                //after student payment
-                //database.child(requestTutor.get(position).tutor_id).child("study_status").setValue("true")
-                //database.child(requestTutor.get(position).student_id).child("study_status").setValue("true")
             }
 
             rejectTutorBtn.setOnClickListener{
@@ -223,6 +292,10 @@ class RequestTutorFragment: Fragment() {
                     notifyDataSetChanged()
                     rowRequest.setAlpha(1.0F)
                 }
+                database.child(requestTutor.get(position).tutor_id)
+                        .child("request")
+                        .child(requestTutor.get(position).student_id)
+                        .removeValue()
             }
 
             return rowRequest
