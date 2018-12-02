@@ -25,17 +25,22 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCrXvMLaEM_r4Pp5ZtIaf2r9kbTHEL54pk" />
 
-        <activity android:name=".Activities.SigninActivity">
+        <activity android:name=".Activities.SigninActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.MainActivity" />
-        <activity android:name=".Activities.SignupActivity" />
-        <activity android:name=".Activities.ForgotpasswordActivity" />
-        <activity android:name=".Activities.TutorActivity"></activity>
+        <activity android:name=".Activities.MainActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activities.SignupActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activities.ForgotpasswordActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activities.TutorActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
