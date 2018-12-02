@@ -55,6 +55,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     private var checkStudyMarker: Int = 0
 
     private var studyLocation = LatLng(0.0, 0.0)
+    private var databaseTutorListener:ValueEventListener? = null
+    private var databaseStudentListener:ValueEventListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -111,7 +113,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     }
 
     private fun addMarkerStudentInTutorMap(mGoogleMap: GoogleMap){
-        database.addValueEventListener(object : ValueEventListener {
+
+        databaseStudentListener = database.addValueEventListener(object : ValueEventListener {
             var studyPerson :String? = null
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 studyPerson = dataSnapshot.child(currentUserUid).child("study_status").value.toString()
@@ -162,7 +165,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     }
 
     private fun addMarkerFromFireBase(mGoogleMap: GoogleMap){
-        database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
+        databaseTutorListener = database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (isAdded){
 
@@ -304,6 +307,13 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
             detailDialog.dismiss()
         }
         detailDialog.show()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        database.removeEventListener(databaseTutorListener)
+        database.removeEventListener(databaseStudentListener)
+
     }
 
 }

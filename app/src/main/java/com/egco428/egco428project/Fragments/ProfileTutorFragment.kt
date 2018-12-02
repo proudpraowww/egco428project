@@ -78,6 +78,9 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     private var storage: FirebaseStorage? = null
     private var storageReference: StorageReference? = null
 
+    private var databaseListener:ValueEventListener? = null
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_tutor_profile, container, false)
@@ -158,7 +161,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
 //==============================get user information from firebase========================================
 
-        database.addValueEventListener(object : ValueEventListener {
+        databaseListener = database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val children = dataSnapshot!!.children
                 val msgList:ArrayList<Member>? = null
@@ -183,7 +186,6 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                         if(it.child("statusOnOff").value.toString() == "on") {
                             gpsSwitch.isChecked = true
                         }else{
-                            database.child(uid).child("statusOnOff").setValue("off")
                             gpsSwitch.isChecked = false
                         }
                         priceText!!.text = "Course price : " + it.child("course_price").value.toString()
@@ -233,8 +235,9 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                 requestLocation()
 
             } else {
-                database.child(uid).child("statusOnOff").setValue("off")
                 endRequestLocation()
+                database.child(uid).child("statusOnOff").setValue("off")
+
 
             }
         }
@@ -455,22 +458,33 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
 
 //=============================== request location function========================================
-    private fun requestLocation(){
-        if(ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) !=  PackageManager.PERMISSION_GRANTED){
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET),10)
+    private fun requestLocation() {
+
+        if (ActivityCompat.checkSelfPermission(activity!!.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET), 10)
             }
             return
         }
-        //locationManager!!.requestLocationUpdates("gps",1000,0f,locationListener)
-        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0f,locationListener)
 
-    }
+        //locationManager!!.requestLocationUpdates("gps",1000,0f,locationListener)
+        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0f, locationListener)
+
+
+}
 
 //=============================stop request location function========================================
 
     private fun endRequestLocation(){
         locationManager!!.removeUpdates(locationListener)
+
+    }
+
+//============================on Pause stop listening to firebase======================================
+
+    override fun onPause() {
+        super.onPause()
+        database.removeEventListener(databaseListener)
     }
 
 }
