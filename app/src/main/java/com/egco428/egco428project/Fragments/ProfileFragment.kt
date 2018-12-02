@@ -34,6 +34,7 @@ import java.util.*
 
 class ProfileFragment: Fragment(), View.OnClickListener {
 
+//=================================declare variable===========================================
 
     private var mAuth: FirebaseAuth? = null
     lateinit var database: DatabaseReference
@@ -46,7 +47,6 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     lateinit var Credit: String
     lateinit var historyData: MutableList<history>
 
-
     private var rootView: View? = null
     private var historyBtn: ImageButton? = null
     private var paymentBtn: ImageButton? = null
@@ -58,17 +58,18 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     private var telText: TextView? = null
     private var schoolText: TextView? = null
     private var logoutBtn: ImageButton? = null
+
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
-//    private val IMAGE_REQUEST = 1234
-//    private var filePath: Uri? = null
     private var storage: FirebaseStorage? = null
     private var storageReference: StorageReference? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false)
+
+//===================================display loading dialog===============================
 
         var loadingDialog = AlertDialog.Builder(this.activity!!).create()
         val inflater = layoutInflater
@@ -82,6 +83,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
         }, 3000)
 
+//=====================================declare xml layout===================================
 
         historyBtn = rootView!!.findViewById(R.id.historyBtn) as ImageButton
         paymentBtn = rootView!!.findViewById(R.id.paymentBtn) as ImageButton
@@ -94,17 +96,27 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         schoolText = rootView!!.findViewById(R.id.schoolText) as TextView
         logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as ImageButton
 
+
+// ===================================set button onclickListener===========================
+
         historyBtn!!.setOnClickListener(this)
         paymentBtn!!.setOnClickListener(this)
         editBtn!!.setOnClickListener(this)
         studentPhoto!!.setOnClickListener(this)
+        logoutBtn!!.setOnClickListener {
+            logout()
+        }
+
+
+//=============================get firebase database and firebase storage===============================================
 
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
-
-
         storage = FirebaseStorage.getInstance()
         storageReference = storage!!.reference
+
+
+// ============================get email and id from firebase authentication================
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -114,9 +126,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             emailText!!.text = "E-mail : " + currentEmail.toString()
         }
 
-        logoutBtn!!.setOnClickListener {
-            logoutKeng()
-        }
+//======================get image from firebase storage and display in imageView================================
+
         val photoRef = storageReference!!.child("photo/"+uid)
 
         val localFile = File.createTempFile("images", "jpg")
@@ -126,12 +137,12 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                     val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,uri)
                     studentPhoto!!.setImageBitmap(bitmap)
 
-
                 }).addOnFailureListener(OnFailureListener {
-                    // Handle failed download
-                    // ...
+
                 })
 
+
+//==============================get user information from firebase========================================
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -170,14 +181,21 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     }
 
 
-    private fun logoutKeng(){
+//=========================log out function===================================
+
+    private fun logout(){
         mAuth!!.signOut()
         val intent = Intent(this.activity,SigninActivity::class.java)
         startActivity(intent)
     }
 
 
+//========================onclick listener method================================
+
     override fun onClick(v: View?) {
+
+// ========================= display history dialog================================
+
         if(v === historyBtn){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -187,6 +205,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             val lv = convertView.findViewById<View>(R.id.historyList) as ListView
             val noHistory = convertView.findViewById<View>(R.id.noHistory) as TextView
             historyData = mutableListOf()
+
+            //get history data from firebase and show in listView
             database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
                 override fun onCancelled(p0: DatabaseError?) {
 
@@ -208,12 +228,18 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
                 }
             })
+
+            // close dialog
             val btn = convertView.findViewById<View>(R.id.backBtn) as Button
             btn.setOnClickListener {
                 alertDialog.dismiss()
             }
+
+
             alertDialog.show()
         }
+
+// ========================= display payment dialog================================
         else if(v === paymentBtn){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -223,7 +249,6 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             val ten = convertView.findViewById<View>(R.id.cash_100) as ImageView
             val submit = convertView.findViewById<View>(R.id.submitBtn) as Button
             val cancel = convertView.findViewById<View>(R.id.cancelBtn) as Button
-
             val check100 = convertView.findViewById<View>(R.id.checkbox_cash100) as CheckBox
             val check200 = convertView.findViewById<View>(R.id.checkbox_cash200) as CheckBox
             val check300 = convertView.findViewById<View>(R.id.checkbox_cash300) as CheckBox
@@ -231,6 +256,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             val check500 = convertView.findViewById<View>(R.id.checkbox_cash500) as CheckBox
             val check600 = convertView.findViewById<View>(R.id.checkbox_cash600) as CheckBox
 
+            //add credit to textView and save to firebase
             submit.setOnClickListener {
                 var values = Credit.toInt()
                 if(check100.isChecked){values = values+100}
@@ -243,15 +269,20 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                 creditText!!.text = "Credit : "+ values.toString()
                 database.child(uid).child("credit").setValue(values.toString())
 
-
                 alertDialog.dismiss()
             }
 
+            //close dialog
             cancel.setOnClickListener{
                 alertDialog.dismiss()
             }
+
+
             alertDialog.show()
         }
+
+// ========================= display edit dialog================================
+
         else if(v === editBtn){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -265,6 +296,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             val save = convertView.findViewById<View>(R.id.saveBtn) as Button
             val cancel = convertView.findViewById<View>(R.id.abolishBtn) as Button
 
+            //get new data display in textView and save to firebase
             save.setOnClickListener {
 
                 if(name.text.isNotEmpty()){
@@ -290,11 +322,19 @@ class ProfileFragment: Fragment(), View.OnClickListener {
                 nameText!!.text = nameLastname
                 alertDialog.dismiss()
             }
+
+            //close dialog
             cancel.setOnClickListener {
                 alertDialog.dismiss()
             }
+
+
             alertDialog.show()
         }
+
+
+//=============================get photo dialog=========================================
+
         else if(v===studentPhoto){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -305,27 +345,34 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             var camera = convertView.findViewById<View>(R.id.camera) as TextView
             var cancel = convertView.findViewById<View>(R.id.cancel) as TextView
 
+            // choose photo from gallery
             gallery.setOnClickListener {
                 selectPhoto()
                 alertDialog.dismiss()
 
             }
+
+            // take a photo
             camera.setOnClickListener {
                 takePhoto()
                 alertDialog.dismiss()
 
             }
+
+            // close dialog
             cancel.setOnClickListener {
                 alertDialog.dismiss()
             }
+
+
             alertDialog.show()
-
-
 
         }
 
     }
 
+
+// ====================================get photo from gallery function=================================
     private fun selectPhoto(){
         val intent = Intent()
         intent.type = "image/*"
@@ -333,8 +380,12 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST)
     }
 
+// =====================================when receive photo function===========================================
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        //display photo from gallery
         if (requestCode == IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null){
             filePath = data.data
             try {
@@ -346,6 +397,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             }
         }
 
+        //display photo from camera and save photo to firebase storage
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
             val extras = data!!.extras
             val photo = extras!!.get("data") as Bitmap
@@ -359,6 +411,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         }
 
     }
+
+//=======================take a photo function===================================
 
     private fun takePhoto(){
         launchCamera()
@@ -378,25 +432,16 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     }
 
 
+//=========================save photo from gallery to firebase storage=============================
+
     private fun uploadFile(){
 
         if(filePath !== null){
-//            Toast.makeText(applicationContext, "Uploading...", Toast.LENGTH_SHORT).show()
             val imageRef = storageReference!!.child("photo/"+uid)
             imageRef.putFile(filePath!!)
-//                    .addOnSuccessListener { Toast.makeText(applicationContext, "File Uploaded...", Toast.LENGTH_SHORT).show() }
-//                    .addOnFailureListener{ Toast.makeText(applicationContext, "Failed", Toast.LENGTH_SHORT).show() }
-//                    .addOnProgressListener {
-//                        takeSnapShot->
-//                        val progress = 100 * takeSnapShot.bytesTransferred/ takeSnapShot.totalByteCount
-//                        Toast.makeText(applicationContext, "Uploaded"+progress.toInt()+"%...", Toast.LENGTH_SHORT).show()
-//
-//                    }
 
         }
-
-
-
+        
     }
 
 }

@@ -34,41 +34,38 @@ class SigninActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance().getReference("Members")
         showSigninForm()
 
-        tvSignupInvoker.setOnClickListener {
-            isSigninScreen = false
-            showSignupForm()
-        }
-
+        //Go to choose type of student or techer
         tvSigninInvoker.setOnClickListener {
             isSigninScreen = true
             showSigninForm()
         }
 
+        //Go to "SIGNIN" page
+        tvSignupInvoker.setOnClickListener {
+            isSigninScreen = false
+            showSignupForm()
+        }
+
+        //Go to Sudent signup
         Btnstudent.setOnClickListener{
             val intent = Intent(this,SignupActivity::class.java)
             startActivity(intent)
         }
 
+        //Go to Teacher signup
         Btnteacher.setOnClickListener{
             val intent = Intent(this,SignupActivity::class.java)
             startActivity(intent)
         }
 
+        //Go to forgotpassword
         btnForgotpass.setOnClickListener{
             val intent = Intent(this,ForgotpasswordActivity::class.java)
             startActivity(intent)
         }
 
-
-        /*val user = mAuth!!.currentUser
-        if(user != null){
-            val intent = Intent(this,profileStudent::class.java)
-            startActivity(intent)
-            finish()
-        }*/
-
+        //LOGIN
         btnSignin.setOnClickListener{
-
             var email = usernameText.text.toString()
             var password = passwordText.text.toString()
 
@@ -82,16 +79,6 @@ class SigninActivity : AppCompatActivity() {
                 login(email,password)
             }
         }
-
-        /*signupBtn.setOnClickListener{
-            val intent = Intent(this, SignupActivity::class.java)
-            startActivity(intent)
-        }
-
-        forgotBtn.setOnClickListener{
-            val intent = Intent(this, ForgotpasswordActivity::class.java)
-            startActivity(intent)
-        }*/
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -147,12 +134,12 @@ class SigninActivity : AppCompatActivity() {
 
     }
 
+    //Go to type of student or techer
     private fun showSignupForm() {
         val paramsLogin = llSignin.getLayoutParams() as PercentRelativeLayout.LayoutParams
         val infoLogin = paramsLogin.percentLayoutInfo
         infoLogin.widthPercent = 0.15f
         llSignin.requestLayout()
-
 
         val paramsSignup = llSignup.getLayoutParams() as PercentRelativeLayout.LayoutParams
         val infoSignup = paramsSignup.percentLayoutInfo
@@ -166,12 +153,12 @@ class SigninActivity : AppCompatActivity() {
 
     }
 
+    //Go to LoginActivity
     private fun showSigninForm() {
         val paramsLogin = llSignin.getLayoutParams() as PercentRelativeLayout.LayoutParams
         val infoLogin = paramsLogin.percentLayoutInfo
         infoLogin.widthPercent = 0.85f
         llSignin.requestLayout()
-
 
         val paramsSignup = llSignup.getLayoutParams() as PercentRelativeLayout.LayoutParams
         val infoSignup = paramsSignup.percentLayoutInfo
@@ -185,15 +172,15 @@ class SigninActivity : AppCompatActivity() {
         tvSigninInvoker.setVisibility(View.GONE)
     }
 
+    //Function LoginActivity
     private fun login(email: String, password: String) {
         mAuth!!.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         val user = mAuth!!.getCurrentUser()
-                        //Toast.makeText(applicationContext,"Signin Successfully...",Toast.LENGTH_SHORT).show()
-                        //Log.d("status variable", status)
                         currentEmail = user!!.email
 
+                        //Get type of user for going to MainActivity or TutorActivity after login
                         for (member in memberList!!) {
                             if (member.email.equals(currentEmail)) {
                                 Toast.makeText(applicationContext, "Signin Successfully...", Toast.LENGTH_SHORT).show()
@@ -220,6 +207,4 @@ class SigninActivity : AppCompatActivity() {
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = mAuth!!.getCurrentUser()
     }
-
-
 }

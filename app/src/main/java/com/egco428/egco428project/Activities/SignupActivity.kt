@@ -33,27 +33,31 @@ class SignupActivity : AppCompatActivity() {
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
 
-        tvSignupInvoker2.setOnClickListener {
-            isSigninScreen = false
-            showSignupTeacherForm()
-        }
+        //Go to Signup of student
         tvSigninInvoker2.setOnClickListener {
             isSigninScreen = true
             showSignupStudentForm()
         }
 
+        //Go to Signup of teacher
+        tvSignupInvoker2.setOnClickListener {
+            isSigninScreen = false
+            showSignupTeacherForm()
+        }
 
+        //Signup Student
         btnSignupStudent.setOnClickListener{
             checkStudentEmailexits()
         }
 
+        //Signup Teacher
         btnSignupTeacher.setOnClickListener{
             checkTeacherEmailexits()
         }
 
     }
 
-
+    //Go to type of techer
     private fun showSignupTeacherForm() {
         val paramsLogin = llSignin2.getLayoutParams() as PercentRelativeLayout.LayoutParams
         val infoLogin = paramsLogin.percentLayoutInfo
@@ -73,6 +77,7 @@ class SignupActivity : AppCompatActivity() {
 
     }
 
+    //Go to type of student
     private fun showSignupStudentForm() {
         val paramsLogin = llSignin2.getLayoutParams() as PercentRelativeLayout.LayoutParams
         val infoLogin = paramsLogin.percentLayoutInfo
@@ -90,6 +95,7 @@ class SignupActivity : AppCompatActivity() {
         llSignin2.startAnimation(translate)
     }
 
+    //Register ID for student
     private fun checkStudentEmailexits(){
 
         var email = emailStudentEdittext.text.toString()
@@ -106,6 +112,8 @@ class SignupActivity : AppCompatActivity() {
                     .addOnCompleteListener(){
                         var check = !it.getResult().providers!!.isEmpty()
                         if(!check){
+
+                            //Create Email in Firebase Authentication
                             mAuth!!.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener{
                                         //val messageId = database.push().key
@@ -115,6 +123,7 @@ class SignupActivity : AppCompatActivity() {
                                             Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
                                         })
 
+                                        //After you registerd then you'll go to the MainActivity
                                         mAuth!!.signInWithEmailAndPassword(email, password)
                                                 .addOnCompleteListener(this) { task ->
                                                     if (task.isSuccessful) {
@@ -139,6 +148,7 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
+    //Register ID for Teacher
     private fun checkTeacherEmailexits(){
 
         var email = emailTeacherEdittext.text.toString()
@@ -157,6 +167,8 @@ class SignupActivity : AppCompatActivity() {
                     .addOnCompleteListener(){
                         var check = !it.getResult().providers!!.isEmpty()
                         if(!check){
+
+                            //Create Email in Firebase Authentication
                             mAuth!!.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener{
                                         //val messageId = database.push().key
@@ -166,6 +178,7 @@ class SignupActivity : AppCompatActivity() {
                                             Toast.makeText(applicationContext,"Completely",Toast.LENGTH_SHORT).show()
                                         })
 
+                                        //After you registerd then you'll go to the TutorActivity
                                         mAuth!!.signInWithEmailAndPassword(email, password)
                                                 .addOnCompleteListener(this) { task ->
                                                     if (task.isSuccessful) {
