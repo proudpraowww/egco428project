@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat.getSystemService
 
 import android.support.v7.app.AlertDialog
 import android.util.Log
@@ -74,34 +75,6 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         rootView = inflater.inflate(R.layout.fragment_map, container, false)
         toastShake = Toast.makeText(this.activity,"Shake to find tutor",Toast.LENGTH_SHORT)
 
-            locationManager = activity!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            locationListener = object : LocationListener{
-
-                override fun onLocationChanged(location: Location?) {
-                    userCurrentLocation = LatLng(location!!.latitude, location!!.longitude)
-                    println(location!!.latitude)
-                    println(location!!.longitude)
-                    println("==========================================")
-                    println(userCurrentLocation.latitude)
-                    println(userCurrentLocation.longitude)
-                    makeUserMarkerCurrentLocation(mGoogleMap)
-
-                }
-
-                override fun onProviderDisabled(p0: String?) {
-                    val i = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                    startActivity(i)
-                }
-
-                override fun onProviderEnabled(p0: String?) {
-                }
-
-                override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
-                }
-
-            }
-            requestLocation()
-
         if (isServicesOK()){
 //            Toast.makeText(this.activity,"Service Working", Toast.LENGTH_SHORT).show()
             println("Service Working")
@@ -125,6 +98,31 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
             mapFragment = childFragmentManager.findFragmentById(R.id.gMap) as SupportMapFragment
             mapFragment.getMapAsync(this)
+
+            locationManager = activity!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            locationListener = object: LocationListener{
+                override fun onLocationChanged(location: Location?) {
+                    userCurrentLocation = LatLng(location!!.latitude, location!!.longitude)
+                    println(location!!.latitude)
+                    println(location!!.longitude)
+                    println("==========================================")
+                    println(userCurrentLocation.latitude)
+                    println(userCurrentLocation.longitude)
+                    makeUserMarkerCurrentLocation(mGoogleMap)
+                }
+
+                override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
+                }
+
+                override fun onProviderDisabled(p0: String?) {
+                }
+
+                override fun onProviderEnabled(p0: String?) {
+                    val i = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(i)
+                }
+            }
+            requestLocation()
 
         }else{
             Toast.makeText(this.activity,"Service not Working", Toast.LENGTH_SHORT).show()
@@ -158,11 +156,18 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     private fun requestLocation(){
         if(ActivityCompat.checkSelfPermission(this.context!!,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.context!!,android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION,android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.INTERNET),10)
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION,android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.INTERNET),10)
+            }
+
             return
         }
-        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0f,locationListener)
-//        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+        //use this if run on real mobile
+//        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0f,locationListener)
+        //use this if run on emulator
+        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+
+//            locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0f,locationListener)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -176,7 +181,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     private fun makeUserMarkerCurrentLocation(googleMap: GoogleMap){
         if (checkMarker == 0){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 5f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 10f))
         }
         if(checkMarker > 0){
             userMarker.remove()
@@ -210,11 +215,11 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         val accel= (x*x+y*y+z*z)/(SensorManager.GRAVITY_EARTH*SensorManager.GRAVITY_EARTH)
         val actualTime = System.currentTimeMillis()
 
-        if (accel>=10){
+        if (accel>=2){
             if (actualTime-lastUpdate < 200){
                 return
             }
-            Toast.makeText(activity, "Showing tutor", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this.activity, "Showing tutor", Toast.LENGTH_SHORT).show()
             addMarkerFromFireBase(mGoogleMap)
             makeInfoWindowGoogleMap(mGoogleMap)
             toastShake!!.cancel()
@@ -263,7 +268,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 //                            resizeBitmap =  Bitmap.createScaledBitmap(bitmapPerson, 140, 140, false)
 //                        }
                         googleMap.addMarker(MarkerOptions().position(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))).setTag(dataTutor)
-//                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble()), 2F))
+//                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble()), 2F))
                     }
                 }
                 if (count == 0){
@@ -390,6 +395,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         super.onPause()
 //        Toast.makeText(this.activity, "Sensor stop working", Toast.LENGTH_SHORT).show()
         sensorManager!!.unregisterListener(this)
+        locationManager!!.removeUpdates(locationListener)
     }
 
     override fun onResume() {
