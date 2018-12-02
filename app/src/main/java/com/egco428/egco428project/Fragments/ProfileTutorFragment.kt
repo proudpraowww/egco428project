@@ -462,7 +462,8 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             }
             return
         }
-        locationManager!!.requestLocationUpdates("gps",1000,0f,locationListener)
+        //locationManager!!.requestLocationUpdates("gps",1000,0f,locationListener)
+        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0f,locationListener)
 
     }
 

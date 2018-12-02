@@ -117,7 +117,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 studyPerson = dataSnapshot.child(currentUserUid).child("study_status").value.toString()
                 println(studyPerson)
                 if(studyPerson == ""){
-                    Toast.makeText(activity, "No study Person right now.", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(activity!!.applicationContext, "No study Person right now.", Toast.LENGTH_SHORT).show()
 
                 }else{
                     studyPersonData = Member(
@@ -139,7 +139,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                             dataSnapshot.child(studyPerson).child("start_time").value.toString())
 
                     println("========================================================")
-                    println(studyPersonData.latitude  + studyPersonData.longitude)
+                    println(studyPersonData.latitude + studyPersonData.longitude)
                     println(studyPersonData.name)
 
                     studyLocation  = LatLng(studyPersonData.latitude.toDouble(), studyPersonData.longitude.toDouble())
@@ -164,6 +164,9 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     private fun addMarkerFromFireBase(mGoogleMap: GoogleMap){
         database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (isAdded){
+
+                }
                 personalData = Member(
                         dataSnapshot.child("id").value.toString(),
                         dataSnapshot.child("email").value.toString(),
@@ -187,11 +190,11 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 println(personalData.name)
                 var currentLocation  = LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble())
 
-                var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
+                /*var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
                 var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
-
+*/
                 makeUserMarkerCurrentLocation(mGoogleMap, currentLocation)
-                userMarker = mGoogleMap.addMarker(MarkerOptions().position(currentLocation).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
+                userMarker = mGoogleMap.addMarker(MarkerOptions().position(currentLocation).title("marker")) //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
                 userMarker.setTag(personalData)
             }
 
