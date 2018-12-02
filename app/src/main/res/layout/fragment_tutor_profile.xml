@@ -13,6 +13,8 @@
             android:id="@+id/header_cover_image"
             android:layout_width="match_parent"
             android:layout_height="200dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
             android:background="@drawable/ic_launcher_background"
             android:scaleType="centerCrop"
             android:src="@drawable/bg_tutor" />
@@ -162,57 +164,6 @@
                 android:text="Credit : "
                 android:textSize="18sp" />
 
-            <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:orientation="horizontal">-->
-
-            <!--<Button-->
-            <!--android:id="@+id/historyBtn"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginBottom="7dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:layout_marginRight="5dp"-->
-            <!--android:layout_marginLeft="5dp"-->
-            <!--android:layout_weight="1"-->
-            <!--android:background="@drawable/round_button"-->
-            <!--android:radius="50dp"-->
-            <!--android:text="History"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!--<Button-->
-            <!--android:id="@+id/paymentBtn"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginBottom="7dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:layout_marginRight="5dp"-->
-            <!--android:layout_marginLeft="5dp"-->
-            <!--android:layout_weight="1"-->
-            <!--android:background="@drawable/round_button"-->
-            <!--android:radius="50dp"-->
-            <!--android:text="Payment"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!--<Button-->
-            <!--android:id="@+id/editBtn"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginBottom="7dp"-->
-            <!--android:layout_marginTop="4dp"-->
-            <!--android:layout_marginRight="5dp"-->
-            <!--android:layout_marginLeft="5dp"-->
-            <!--android:layout_weight="1"-->
-            <!--android:background="@drawable/round_button"-->
-            <!--android:radius="50dp"-->
-            <!--android:text="Edit Profile"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--app:layout_constraintTop_toTopOf="parent" />-->
-            <!--</LinearLayout>-->
-
             <ImageView
                 android:id="@+id/bottom_cover_image"
                 android:layout_width="match_parent"
@@ -224,15 +175,29 @@
 
         </LinearLayout>
 
-        <Button
+        <ImageButton
             android:id="@+id/logoutBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            android:layout_marginEnd="20dp"
+            android:background="@null"
+            android:layout_marginEnd="17dp"
             android:layout_marginTop="13dp"
-            android:text="logout" />
+            app:srcCompat="@drawable/signout" />
+
+        <Switch
+            android:id="@+id/gpsSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/logoutBtn"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="0dp"
+            android:layout_marginTop="154dp"
+            android:text="GPS "
+            android:textColor="@color/colorPrimaryDark"
+            android:textStyle="bold"
+            android:theme="@style/SwitchTheme" />
 
 
     </RelativeLayout>
