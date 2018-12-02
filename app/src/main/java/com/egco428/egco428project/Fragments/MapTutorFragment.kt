@@ -135,7 +135,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                             dataSnapshot.child(studyPerson).child("credit").value.toString(),
                             dataSnapshot.child(studyPerson).child("subject").value.toString(),
                             dataSnapshot.child(studyPerson).child("course_price").value.toString(),
-                            dataSnapshot.child(studyPerson).child("study_status").value.toString())
+                            dataSnapshot.child(studyPerson).child("study_status").value.toString(),
+                            dataSnapshot.child(studyPerson).child("start_time").value.toString())
 
                     println("========================================================")
                     println(studyPersonData.latitude  + studyPersonData.longitude)

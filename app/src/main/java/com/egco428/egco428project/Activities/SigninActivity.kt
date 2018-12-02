@@ -102,7 +102,6 @@ class SigninActivity : AppCompatActivity() {
                         }
                     }
 
-
                     var member: Member
                     member = Member(
                             it.child("id").value.toString(),
@@ -197,7 +196,7 @@ class SigninActivity : AppCompatActivity() {
 
                     } else {
                         // If sign in fails, display a message to the user.
-                        Toast.makeText(applicationContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, "Network Error or Authentication failed.", Toast.LENGTH_SHORT).show()
                     }
                 }
     }
