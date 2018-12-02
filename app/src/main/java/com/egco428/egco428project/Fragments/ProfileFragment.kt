@@ -118,8 +118,8 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         logoutBtn!!.setOnClickListener {
             logoutKeng()
         }
-        val photoRef = storageReference!!.child("photo/"+uid)
 
+        val photoRef = storageReference!!.child("photo/"+uid)
         val localFile = File.createTempFile("images", "jpg")
         photoRef.getFile(localFile)
                 .addOnSuccessListener(OnSuccessListener<Any> {
