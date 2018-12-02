@@ -143,12 +143,12 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                     println(studyPersonData.name)
 
                     studyLocation  = LatLng(studyPersonData.latitude.toDouble(), studyPersonData.longitude.toDouble())
-
-                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
-                    var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
+//
+//                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
+//                    var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
 
                     makeStudyMarkerCurrentLocation(mGoogleMap, studyLocation)
-                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
+                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker"))
                     studyMarker.setTag(studyPersonData)
                 }
 
@@ -240,8 +240,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 val lName = v.findViewById(R.id.lastname) as TextView
                 val phone = v.findViewById(R.id.phone) as TextView
 
-                var photoRef = storageReference.child("photo/"+dataTutor.id)
-                var localFile = File.createTempFile("images", "jpg")
+//                var photoRef = storageReference.child("photo/"+dataTutor.id)
+//                var localFile = File.createTempFile("images", "jpg")
 
                 fName.text = "FirstName : " + dataTutor.name
                 lName.text = "LastName : " + dataTutor.lastname

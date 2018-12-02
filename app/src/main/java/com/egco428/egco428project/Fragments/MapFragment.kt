@@ -163,9 +163,9 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             return
         }
         //use this if run on real mobile
-        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0f,locationListener)
+//        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0f,locationListener)
         //use this if run on emulator
-//        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
 
 //            locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0f,locationListener)
     }
@@ -215,7 +215,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         val accel= (x*x+y*y+z*z)/(SensorManager.GRAVITY_EARTH*SensorManager.GRAVITY_EARTH)
         val actualTime = System.currentTimeMillis()
 
-        if (accel>=11){
+        if (accel>=3){
             if (actualTime-lastUpdate < 200){
                 return
             }
@@ -268,7 +268,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 //                            var bitmapPerson = MediaStore.Images.Media.getBitmap(activity!!.contentResolver,uri)
 //                            resizeBitmap =  Bitmap.createScaledBitmap(bitmapPerson, 140, 140, false)
 //                        }
-                        googleMap.addMarker(MarkerOptions().position(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))).setTag(dataTutor)
+                        googleMap.addMarker(MarkerOptions().position(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble())).title("marker")).setTag(dataTutor)
 //                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble()), 2F))
                     }
                 }
