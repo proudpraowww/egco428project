@@ -57,7 +57,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     private var telText: TextView? = null
     private var courseText: TextView? = null
     private var priceText: TextView? = null
-    private var logoutBtn: Button? = null
+    private var logoutBtn: ImageButton? = null
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
@@ -92,7 +92,8 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         telText = rootView!!.findViewById(R.id.telText) as TextView
         courseText = rootView!!.findViewById(R.id.courseText) as TextView
         priceText = rootView!!.findViewById(R.id.priceText) as TextView
-        logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as Button
+        logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as ImageButton
+        val gpsSwitch = rootView!!.findViewById(R.id.gpsSwitch) as Switch
 
         historyBtn!!.setOnClickListener(this)
         editBtn!!.setOnClickListener(this)
@@ -155,6 +156,12 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                             creditText!!.text = "Credit : " + it.child("credit").value.toString()
                             Credit = it.child("credit").value.toString()
                         }
+                        if(it.child("statusOnOff").value.toString() == "on") {
+                            gpsSwitch.isChecked = true
+                        }else{
+                            database.child(uid).child("statusOnOff").setValue("off")
+                            gpsSwitch.isChecked = false
+                        }
                         priceText!!.text = "Course price : " + it.child("course_price").value.toString()
                         password = it.child("password").value.toString()
                         id = it.child("id").value.toString()
@@ -167,11 +174,25 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             }
         })
 
+        gpsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+
+            if (isChecked) {
+                database.child(uid).child("statusOnOff").setValue("on")
+
+            } else {
+                database.child(uid).child("statusOnOff").setValue("off")
+
+            }
+        }
+
+
+
         return rootView
     }
 
 
     private fun logoutKeng(){
+        database.child(uid).child("statusOnOff").setValue("off")
         mAuth!!.signOut()
         val intent = Intent(this.activity,SigninActivity::class.java)
         startActivity(intent)

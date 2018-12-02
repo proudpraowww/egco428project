@@ -18,7 +18,6 @@ import android.provider.MediaStore
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.Model.history
-import com.egco428.egco428project.R.id.visible
 import com.egco428.egco428project.historyAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -58,7 +57,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     private var nameText: TextView? = null
     private var telText: TextView? = null
     private var schoolText: TextView? = null
-    private var logoutBtn: Button? = null
+    private var logoutBtn: ImageButton? = null
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
@@ -93,7 +92,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
         nameText = rootView!!.findViewById(R.id.user_profile_name) as TextView
         telText = rootView!!.findViewById(R.id.telText) as TextView
         schoolText = rootView!!.findViewById(R.id.schoolText) as TextView
-        logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as Button
+        logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as ImageButton
 
         historyBtn!!.setOnClickListener(this)
         paymentBtn!!.setOnClickListener(this)
