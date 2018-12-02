@@ -164,6 +164,9 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     private fun addMarkerFromFireBase(mGoogleMap: GoogleMap){
         database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (isAdded){
+
+                }
                 personalData = Member(
                         dataSnapshot.child("id").value.toString(),
                         dataSnapshot.child("email").value.toString(),
