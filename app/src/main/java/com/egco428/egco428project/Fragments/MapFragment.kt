@@ -395,7 +395,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     }
     private fun saveRequestToTutor(dataTutor : Member){
-            database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
+            database.child(currentUserUid).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     database.child(dataTutor.id).child("request").child(currentUserUid).child("name").setValue(dataSnapshot.child("name").value)
                     database.child(dataTutor.id).child("request").child(currentUserUid).child("lastname").setValue(dataSnapshot.child("lastname").value)
