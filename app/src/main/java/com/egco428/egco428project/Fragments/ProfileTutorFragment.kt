@@ -1,6 +1,8 @@
 package com.egco428.egco428project.Fragments
 
+import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -12,9 +14,15 @@ import com.egco428.egco428project.R
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
+import android.provider.Settings
+import android.support.v4.app.ActivityCompat
 import android.util.Log
 import com.egco428.egco428project.Activities.SigninActivity
 import com.egco428.egco428project.Model.Member
@@ -35,6 +43,8 @@ import java.util.*
 
 class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
+
+//=================================declare variable===========================================
 
     private var mAuth: FirebaseAuth? = null
     lateinit var database: DatabaseReference
@@ -57,11 +67,14 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     private var telText: TextView? = null
     private var courseText: TextView? = null
     private var priceText: TextView? = null
-    private var logoutBtn: Button? = null
+    private var logoutBtn: ImageButton? = null
+
+
     private val IMAGE_REQUEST = 1234
     private var filePath: Uri? = null
     private val REQUEST_IMAGE_CAPTURE = 1
-
+    private var locationManager: LocationManager? = null
+    private var locationListener: LocationListener? = null
     private var storage: FirebaseStorage? = null
     private var storageReference: StorageReference? = null
 
@@ -70,6 +83,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         rootView = inflater.inflate(R.layout.fragment_tutor_profile, container, false)
 
 
+//===================================display loading dialog===============================
 
         var loadingDialog = AlertDialog.Builder(this.activity!!).create()
         val inflater = layoutInflater
@@ -83,6 +97,9 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
         }, 3000)
 
+
+//=====================================declare xml layout===================================
+
         historyBtn = rootView!!.findViewById(R.id.historyBtn) as ImageButton
         creditText = rootView!!.findViewById(R.id.creditText) as TextView
         editBtn = rootView!!.findViewById(R.id.editBtn) as ImageButton
@@ -92,16 +109,28 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         telText = rootView!!.findViewById(R.id.telText) as TextView
         courseText = rootView!!.findViewById(R.id.courseText) as TextView
         priceText = rootView!!.findViewById(R.id.priceText) as TextView
-        logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as Button
+        logoutBtn = rootView!!.findViewById(R.id.logoutBtn) as ImageButton
+        val gpsSwitch = rootView!!.findViewById(R.id.gpsSwitch) as Switch
+
+
+// ===================================set button onclickListener===========================
 
         historyBtn!!.setOnClickListener(this)
         editBtn!!.setOnClickListener(this)
         tutorPhoto!!.setOnClickListener(this)
+        logoutBtn!!.setOnClickListener {
+            logout()
+        }
+
+//=============================get firebase database and firebase storage===============================================
 
         mAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().getReference("Members")
         storage = FirebaseStorage.getInstance()
         storageReference = storage!!.reference
+
+
+// ============================get email and id from firebase authentication================
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -112,9 +141,8 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         }
 
 
-        logoutBtn!!.setOnClickListener {
-            logoutKeng()
-        }
+//======================get image from firebase storage and display in imageView================================
+
         val photoRef = storageReference!!.child("photo/"+uid)
 
         val localFile = File.createTempFile("images", "jpg")
@@ -124,19 +152,16 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                     val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,uri)
                     tutorPhoto!!.setImageBitmap(bitmap)
 
-
                 }).addOnFailureListener(OnFailureListener {
-                    // Handle failed download
-                    // ...
                 })
 
 
+//==============================get user information from firebase========================================
+
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                //val value = dataSnapshot.getValue(Member::class.java)
                 val children = dataSnapshot!!.children
                 val msgList:ArrayList<Member>? = null
-//                member = Member(it.child("id").value.toString(), it.child("email").value.toString(), it.child("password").value.toString(), it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("status").value.toString(), it.child("phone").value.toString())
 
                 children.forEach{
                     if(it.child("email").value.toString().equals(currentEmail)){
@@ -155,6 +180,12 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                             creditText!!.text = "Credit : " + it.child("credit").value.toString()
                             Credit = it.child("credit").value.toString()
                         }
+                        if(it.child("statusOnOff").value.toString() == "on") {
+                            gpsSwitch.isChecked = true
+                        }else{
+                            database.child(uid).child("statusOnOff").setValue("off")
+                            gpsSwitch.isChecked = false
+                        }
                         priceText!!.text = "Course price : " + it.child("course_price").value.toString()
                         password = it.child("password").value.toString()
                         id = it.child("id").value.toString()
@@ -167,18 +198,62 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             }
         })
 
+
+//===============================save location to database when changed=====================================
+
+        locationManager = activity!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationListener = object : LocationListener {
+
+            override fun onLocationChanged(p0: Location?) {
+
+                database.child(uid).child("latitude").setValue(p0!!.latitude)
+                database.child(uid).child("longitude").setValue(p0!!.longitude)
+            }
+
+            override fun onProviderDisabled(p0: String?) {
+                val i = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(i)
+            }
+
+            override fun onProviderEnabled(p0: String?) {
+            }
+
+            override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
+            }
+
+        }
+
+
+//==============================get/stop current location when switch turn on/off=============================
+
+        gpsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+
+            if (isChecked) {
+                database.child(uid).child("statusOnOff").setValue("on")
+                requestLocation()
+
+            } else {
+                database.child(uid).child("statusOnOff").setValue("off")
+                endRequestLocation()
+
+            }
+        }
         return rootView
     }
 
+//=========================log out function===================================
 
-    private fun logoutKeng(){
+    private fun logout(){
+        database.child(uid).child("statusOnOff").setValue("off")
         mAuth!!.signOut()
         val intent = Intent(this.activity,SigninActivity::class.java)
         startActivity(intent)
     }
 
-
+//========================onclick listener method================================
     override fun onClick(v: View?) {
+
+// ========================= display history dialog================================
         if(v === historyBtn){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -188,11 +263,12 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             val lv = convertView.findViewById<View>(R.id.historyList) as ListView
             val noHistory = convertView.findViewById<View>(R.id.noHistory) as TextView
             historyData = mutableListOf()
+
+            //get history data from firebase and show in listView
             database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
                 override fun onCancelled(p0: DatabaseError?) {
 
                 }
-
                 override fun onDataChange(p0: DataSnapshot?) {
                     if (p0!!.exists()){
                         historyData.clear()
@@ -206,16 +282,19 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                     else{
                         noHistory.visibility = View.VISIBLE
                     }
-
-
                 }
             })
+            // close dialog
             val btn = convertView.findViewById<View>(R.id.backBtn) as Button
             btn.setOnClickListener {
                 alertDialog.dismiss()
             }
+
+
             alertDialog.show()
         }
+
+// ========================= display edit dialog================================
         else if(v === editBtn){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -230,6 +309,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             val save = convertView.findViewById<View>(R.id.saveBtn) as Button
             val cancel = convertView.findViewById<View>(R.id.abolishBtn) as Button
 
+            //get new data display in textView and save to firebase
             save.setOnClickListener {
 
                 if(name.text.isNotEmpty()){
@@ -258,11 +338,17 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
                 nameText!!.text = nameLastname
                 alertDialog.dismiss()
             }
+            //close dialog
             cancel.setOnClickListener {
                 alertDialog.dismiss()
             }
+
+
             alertDialog.show()
         }
+
+//=============================get photo dialog=========================================
+
         else if(v===tutorPhoto){
 
             var alertDialog = AlertDialog.Builder(this.activity!!).create()
@@ -273,26 +359,31 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             var camera = convertView.findViewById<View>(R.id.camera) as TextView
             var cancel = convertView.findViewById<View>(R.id.cancel) as TextView
 
+            // choose photo from gallery
             gallery.setOnClickListener {
                 selectPhoto()
                 alertDialog.dismiss()
 
             }
+
+            // take a photo
             camera.setOnClickListener {
                 takePhoto()
                 alertDialog.dismiss()
 
             }
+
+            // close dialog
             cancel.setOnClickListener {
                 alertDialog.dismiss()
             }
+
+
             alertDialog.show()
-
-
-
         }
-
     }
+
+// ====================================get photo from gallery function=================================
 
     private fun selectPhoto(){
         val intent = Intent()
@@ -301,8 +392,12 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST)
     }
 
+// =====================================when receive photo function===========================================
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        //display photo from gallery
         if (requestCode == IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null){
             filePath = data.data
             try {
@@ -314,6 +409,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             }
         }
 
+        //display photo from camera and save photo to firebase storage
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK){
             val extras = data!!.extras
             val photo = extras!!.get("data") as Bitmap
@@ -328,6 +424,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
 
     }
 
+//=======================take a photo function===================================
     private fun takePhoto(){
         launchCamera()
         if(!hasCamera()){
@@ -346,6 +443,8 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     }
 
 
+//=========================save photo from gallery to firebase storage=============================
+
     private fun uploadFile(){
         if(filePath !== null){
             val imageRef = storageReference!!.child("photo/"+uid)
@@ -355,5 +454,22 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
     }
 
 
+//=============================== request location function========================================
+    private fun requestLocation(){
+        if(ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) !=  PackageManager.PERMISSION_GRANTED){
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET),10)
+            }
+            return
+        }
+        locationManager!!.requestLocationUpdates("gps",1000,0f,locationListener)
+
+    }
+
+//=============================stop request location function========================================
+
+    private fun endRequestLocation(){
+        locationManager!!.removeUpdates(locationListener)
+    }
 
 }
