@@ -65,7 +65,7 @@ class RequestFragment: Fragment() {
             uid = user.uid
         }
 
-        database.addValueEventListener(object : ValueEventListener {
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val children = dataSnapshot!!.children
                 requestStudent.clear()
@@ -84,7 +84,7 @@ class RequestFragment: Fragment() {
                 }
                 if(requestStudent.size > 0){
                     tutorLayout!!.visibility = View.GONE
-                    textLayout.visibility = View.GONE
+                    textLayout!!.visibility = View.GONE
                     requestListView!!.adapter = requestListAdapter(activity!!.applicationContext, database, currentEmail, requestStudent!!)
                     requestListView!!.visibility = View.VISIBLE
                 } else {
@@ -184,6 +184,7 @@ class RequestFragment: Fragment() {
 
             val paymentBtn = rowRequest.findViewById(R.id.paymentBtn) as Button
             val cancelBtn = rowRequest.findViewById(R.id.cancelBtn) as Button
+            val paymentLayout = rowRequest.findViewById(R.id.paymentLayout) as LinearLayout
 
             if(requestStudent.get(position).response.equals("true")){
                 viewHolder.imageView.setImageResource(R.drawable.accept_icon)
@@ -245,6 +246,8 @@ class RequestFragment: Fragment() {
 
 
                                     Toast.makeText(context, "Payment Successful.", Toast.LENGTH_SHORT).show()
+
+                                    paymentLayout.visibility = View.GONE
                                 } else {
                                     Toast.makeText(context, "Please check your credits.", Toast.LENGTH_SHORT).show()
                                 }
