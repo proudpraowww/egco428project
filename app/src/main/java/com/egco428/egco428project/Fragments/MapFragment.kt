@@ -163,9 +163,9 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             return
         }
         //use this if run on real mobile
-//        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0f,locationListener)
+        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0f,locationListener)
         //use this if run on emulator
-        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+//        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
 
 //            locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0f,locationListener)
     }
