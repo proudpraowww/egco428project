@@ -163,9 +163,11 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             return
         }
         //use this if run on real mobile
-        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0f,locationListener)
+//        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0f,locationListener)
+        //locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0f,locationListener)
         //use this if run on emulator
-//        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+        locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+        locationManager!!.requestLocationUpdates("gps",1000,0f,locationListener)
 
 //            locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0f,locationListener)
     }
@@ -215,7 +217,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         val accel= (x*x+y*y+z*z)/(SensorManager.GRAVITY_EARTH*SensorManager.GRAVITY_EARTH)
         val actualTime = System.currentTimeMillis()
 
-        if (accel>=11){
+        if (accel>=2){
             if (actualTime-lastUpdate < 200){
                 return
             }
@@ -347,7 +349,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                     if(it.key.toString() == currentUserUid){
                         println("==========================already request")
                         requestBtn.isEnabled = false
-                        Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
                         checkIsListEmpty = 1
                     }
                 }
@@ -357,7 +359,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                             if(dataSnapshot.child(dataTutor.id).child("study_status").value.toString() != "" || dataSnapshot.child(currentUserUid).child("study_status").value.toString() != ""){
                                 println("==========================already request")
                                 requestBtn.isEnabled = false
-                                Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
+                                //Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
                             }
                         }
                         override fun onCancelled(error: DatabaseError) {
@@ -393,7 +395,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
     }
     private fun saveRequestToTutor(dataTutor : Member){
-            database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
+            database.child(currentUserUid).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     database.child(dataTutor.id).child("request").child(currentUserUid).child("name").setValue(dataSnapshot.child("name").value)
                     database.child(dataTutor.id).child("request").child(currentUserUid).child("lastname").setValue(dataSnapshot.child("lastname").value)

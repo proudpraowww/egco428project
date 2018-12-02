@@ -23,10 +23,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -146,12 +143,12 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                     println(studyPersonData.name)
 
                     studyLocation  = LatLng(studyPersonData.latitude.toDouble(), studyPersonData.longitude.toDouble())
-
-                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
+//
+                   /* var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
                     var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
-
+*/
                     makeStudyMarkerCurrentLocation(mGoogleMap, studyLocation)
-                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))
+                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker"))  //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
                     studyMarker.setTag(studyPersonData)
                 }
 
@@ -243,8 +240,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 val lName = v.findViewById(R.id.lastname) as TextView
                 val phone = v.findViewById(R.id.phone) as TextView
 
-                var photoRef = storageReference.child("photo/"+dataTutor.id)
-                var localFile = File.createTempFile("images", "jpg")
+//                var photoRef = storageReference.child("photo/"+dataTutor.id)
+//                var localFile = File.createTempFile("images", "jpg")
 
                 fName.text = "FirstName : " + dataTutor.name
                 lName.text = "LastName : " + dataTutor.lastname

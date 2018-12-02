@@ -59,7 +59,7 @@ class RequestTutorFragment: Fragment() {
             uid = user.uid
         }
 
-        database.addValueEventListener(object : ValueEventListener {
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val children = dataSnapshot!!.children
                 requestTutor.clear()

@@ -65,7 +65,7 @@ class RequestFragment: Fragment() {
             uid = user.uid
         }
 
-        database.addValueEventListener(object : ValueEventListener {
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val children = dataSnapshot!!.children
                 requestStudent.clear()
@@ -84,7 +84,7 @@ class RequestFragment: Fragment() {
                 }
                 if(requestStudent.size > 0){
                     tutorLayout!!.visibility = View.GONE
-                    textLayout.visibility = View.GONE
+                    textLayout!!.visibility = View.GONE
                     requestListView!!.adapter = requestListAdapter(activity!!.applicationContext, database, currentEmail, requestStudent!!)
                     requestListView!!.visibility = View.VISIBLE
                 } else {
@@ -184,6 +184,7 @@ class RequestFragment: Fragment() {
 
             val paymentBtn = rowRequest.findViewById(R.id.paymentBtn) as Button
             val cancelBtn = rowRequest.findViewById(R.id.cancelBtn) as Button
+            val paymentLayout = rowRequest.findViewById(R.id.paymentLayout) as LinearLayout
 
             if(requestStudent.get(position).response.equals("true")){
                 viewHolder.imageView.setImageResource(R.drawable.accept_icon)
@@ -226,8 +227,6 @@ class RequestFragment: Fragment() {
                                     database.child(requestStudent.get(position).tutor_id).child("credit")
                                             .setValue(it.child("credit").value.toString().toInt()
                                                     + requestStudent.get(position).student_credit.toInt())
-                                    database.child(requestStudent.get(position).tutor_id).child("request").removeValue()
-                                    database.child(requestStudent.get(position).student_id).child("request").removeValue()
 
                                     //set study_status of tutor and student
                                     database.child(requestStudent.get(position).tutor_id).child("study_status").setValue(requestStudent.get(position).student_id)
@@ -243,8 +242,32 @@ class RequestFragment: Fragment() {
                                     database.child(requestStudent.get(position).tutor_id).child("history").child(push_key).setValue(historyStudent)
                                     database.child(requestStudent.get(position).student_id).child("history").child(push_key).setValue(historyTutor)
 
+                                    //remove request list of accepted student and accepted tutor
+                                    database.child(requestStudent.get(position).tutor_id).child("request").removeValue()
+                                    database.child(requestStudent.get(position).student_id).child("request").removeValue()
+
+                                    //remove request list of other student at rejected from tutor
+                                    database.addListenerForSingleValueEvent(object : ValueEventListener {
+                                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                            val children = dataSnapshot!!.children
+                                            children.forEach{
+                                                if(it.child("status").value.toString().equals("student")){
+                                                    val other_student_id = it.child("id").value.toString()
+                                                    it.child("request").children.forEach{
+                                                        if(it.key == requestStudent.get(position).tutor_id){
+                                                            database.child(other_student_id).child("request").child(requestStudent.get(position).tutor_id).removeValue()
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        override fun onCancelled(error: DatabaseError) {
+                                            // Failed to read
+                                        }
+                                    })
 
                                     Toast.makeText(context, "Payment Successful.", Toast.LENGTH_SHORT).show()
+                                    paymentLayout.visibility = View.GONE
                                 } else {
                                     Toast.makeText(context, "Please check your credits.", Toast.LENGTH_SHORT).show()
                                 }
