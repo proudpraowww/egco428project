@@ -217,7 +217,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         val accel= (x*x+y*y+z*z)/(SensorManager.GRAVITY_EARTH*SensorManager.GRAVITY_EARTH)
         val actualTime = System.currentTimeMillis()
 
-        if (accel>=11){
+        if (accel>=3){
             if (actualTime-lastUpdate < 200){
                 return
             }
@@ -349,7 +349,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                     if(it.key.toString() == currentUserUid){
                         println("==========================already request")
                         requestBtn.isEnabled = false
-                        Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
                         checkIsListEmpty = 1
                     }
                 }
@@ -359,7 +359,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                             if(dataSnapshot.child(dataTutor.id).child("study_status").value.toString() != "" || dataSnapshot.child(currentUserUid).child("study_status").value.toString() != ""){
                                 println("==========================already request")
                                 requestBtn.isEnabled = false
-                                Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
+                                //Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
                             }
                         }
                         override fun onCancelled(error: DatabaseError) {
