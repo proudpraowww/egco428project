@@ -17,6 +17,7 @@ class ForgotpasswordActivity : AppCompatActivity() {
 
         mAuth = FirebaseAuth.getInstance()
 
+        //Click to reset password then, message will send into the your email
         Btnresetpassword.setOnClickListener{
             var email = resetText.text.toString()
 
