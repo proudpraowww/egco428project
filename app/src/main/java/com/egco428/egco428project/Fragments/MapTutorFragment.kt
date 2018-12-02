@@ -119,7 +119,8 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback {
                         dataSnapshot.child("credit").value.toString(),
                         dataSnapshot.child("subject").value.toString(),
                         dataSnapshot.child("course_price").value.toString(),
-                        dataSnapshot.child("study_status").value.toString())
+                        dataSnapshot.child("study_status").value.toString(),
+                        dataSnapshot.child("start_time").value.toString())
 
                 println("========================================================")
                 println(personalData.latitude  + personalData.longitude)
