@@ -259,8 +259,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
                         var photoRef = storageReference!!.child("photo/"+dataTutor.id)
                         var localFile = File.createTempFile("images", "jpg")
-                        var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
-                        var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
+//                        var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
+//                        var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
 
 //                        photoRef.getFile(localFile).addOnSuccessListener{
 //
