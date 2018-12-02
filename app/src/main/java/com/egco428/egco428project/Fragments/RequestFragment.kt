@@ -226,7 +226,7 @@ class RequestFragment: Fragment() {
                                                     - it.child("course_price").value.toString().toInt())
                                     database.child(requestStudent.get(position).tutor_id).child("credit")
                                             .setValue(it.child("credit").value.toString().toInt()
-                                                    + requestStudent.get(position).student_credit.toInt())
+                                                    + it.child("course_price").value.toString().toInt())/*requestStudent.get(position).student_credit.toInt())*/
 
                                     //set study_status of tutor and student
                                     database.child(requestStudent.get(position).tutor_id).child("study_status").setValue(requestStudent.get(position).student_id)

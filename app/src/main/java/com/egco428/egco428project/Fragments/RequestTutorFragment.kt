@@ -156,6 +156,8 @@ class RequestTutorFragment: Fragment() {
                     // Failed to read
                 }
             })
+            val ft = fragmentManager!!.beginTransaction()
+            ft.detach(this@RequestTutorFragment).attach(this@RequestTutorFragment).commit()
         }
 
         return rootView

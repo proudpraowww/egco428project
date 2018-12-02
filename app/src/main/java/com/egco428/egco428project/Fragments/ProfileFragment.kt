@@ -65,6 +65,9 @@ class ProfileFragment: Fragment(), View.OnClickListener {
     private var storage: FirebaseStorage? = null
     private var storageReference: StorageReference? = null
 
+    private var databaseListener:ValueEventListener? = null
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false)
@@ -144,7 +147,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
 //==============================get user information from firebase========================================
 
-        database.addValueEventListener(object : ValueEventListener {
+        databaseListener = database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 //val value = dataSnapshot.getValue(Member::class.java)
                 val children = dataSnapshot!!.children
@@ -207,7 +210,7 @@ class ProfileFragment: Fragment(), View.OnClickListener {
             historyData = mutableListOf()
 
             //get history data from firebase and show in listView
-            database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
+            databaseListener = database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
                 override fun onCancelled(p0: DatabaseError?) {
 
                 }
@@ -442,6 +445,13 @@ class ProfileFragment: Fragment(), View.OnClickListener {
 
         }
         
+    }
+
+    //============================on Pause stop listening to firebase======================================
+
+    override fun onPause() {
+        super.onPause()
+        database.removeEventListener(databaseListener)
     }
 
 }
