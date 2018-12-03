@@ -6,7 +6,7 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import com.egco428.egco428project.Fragments.*
 import com.egco428.egco428project.R
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_tutor.*
 
 class TutorActivity : AppCompatActivity() {
 
@@ -17,6 +17,7 @@ class TutorActivity : AppCompatActivity() {
         pushFragment(ProfileTutorFragment())
         mapNavigation.setOnClickListener({
             bottomView.selectedItemId = R.id.mapNavigation
+            mapNavigation.setImageResource(R.drawable.worldwidebold)
         })
     }
 
@@ -24,6 +25,7 @@ class TutorActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.profileNavigation -> {
                 pushFragment(ProfileTutorFragment())
+                mapNavigation.setImageResource(R.drawable.worldwide)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.mapNavigation -> {
@@ -32,6 +34,7 @@ class TutorActivity : AppCompatActivity() {
             }
             R.id.requestNavigation -> {
                 pushFragment(RequestTutorFragment())
+                mapNavigation.setImageResource(R.drawable.worldwide)
                 return@OnNavigationItemSelectedListener true
             }
         }

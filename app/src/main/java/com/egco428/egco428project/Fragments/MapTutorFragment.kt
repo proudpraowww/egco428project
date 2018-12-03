@@ -3,7 +3,9 @@ package com.egco428.egco428project.Fragments
 import android.app.Dialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.util.Log
@@ -22,10 +24,13 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import java.io.File
 
 
 class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
@@ -145,11 +150,11 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
 
                     studyLocation  = LatLng(studyPersonData.latitude.toDouble(), studyPersonData.longitude.toDouble())
 //
-                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
-                    var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
+//                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
+//                    var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
 
                     makeStudyMarkerCurrentLocation(mGoogleMap, studyLocation)
-                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))  //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
+                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker").icon(BitmapDescriptorFactory.fromResource(R.drawable.student)))  //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
                     studyMarker.setTag(studyPersonData)
                 }
 
@@ -216,7 +221,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     //update tutor marker
     private fun makeUserMarkerCurrentLocation(googleMap: GoogleMap, currentLocation: LatLng){
         if (checkMarker == 0){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 5f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12f))
         }
         if(checkMarker > 0){
             userMarker.remove()
@@ -275,12 +280,24 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
 
         requestBtn.setVisibility(View.GONE)
 
+        val photoRef = storageReference!!.child("photo/"+ infoData.id)
+        val localFile = File.createTempFile("images", "jpg")
+        photoRef.getFile(localFile).addOnSuccessListener(OnSuccessListener<Any> {
+            val uri = Uri.fromFile(localFile)
+            val bitmap = MediaStore.Images.Media.getBitmap(activity!!.contentResolver,uri)
+            var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmap, 250, 250, false)
+            img!!.setImageBitmap(resizeBitmap)
+//                googleMap.addMarker(MarkerOptions().position(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))).setTag(dataTutor)
+        }).addOnFailureListener(OnFailureListener {
+
+        })
+
         if (infoData.status == "student"){
             img.setImageResource(R.drawable.student)
-            otherInfo.text = "Tutor : "+ infoData.subject
+            otherInfo.text = "School : "+ infoData.school
         }else{
             img.setImageResource(R.drawable.teacher)
-            otherInfo.text = "School : "+ infoData.subject
+            otherInfo.text = "Subject : "+ infoData.subject
         }
         email.text = "email : "+ infoData.email
         fName.text = "FirstName : "+ infoData.name

@@ -41,6 +41,8 @@ import com.google.firebase.database.*
 import com.egco428.egco428project.Model.Member
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -187,7 +189,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
     //Make Current User maker(student marker) Call this function from onLocationChange
     private fun makeUserMarkerCurrentLocation(googleMap: GoogleMap){
         if (checkMarker == 0){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 5f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentLocation, 12f))
         }
         if(checkMarker > 0){
             userMarker.remove()
@@ -259,7 +261,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         val actualTime = System.currentTimeMillis()
         val vibe:Vibrator = activity?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
-        if (accel>=3){
+        if (accel>=2){
             if (actualTime-lastUpdate < 200){
                 return
             }
@@ -309,28 +311,21 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 //                        photoRef.getFile(localFile)
 //                                .addOnSuccessListener(OnSuccessListener<Any> {
 //                                    val uri = Uri.fromFile(localFile)
-//                                    val bitmap = MediaStore.Images.Media.getBitmap(this.activity!!.contentResolver,uri)
-//                                    studentPhoto!!.setImageBitmap(bitmap)
+//                                    val bitmap = MediaStore.Images.Media.getBitmap(activity!!.contentResolver,uri)
+//                                    var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmap, 130, 130, false)
+//                                    googleMap.addMarker(MarkerOptions().position(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))).setTag(dataTutor)
+//
 //
 //                                }).addOnFailureListener(OnFailureListener {
 //
 //                                })
                         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//                        var photoRef = storageReference!!.child("photo/"+dataTutor.id)
-//                        var localFile = File.createTempFile("images", "jpg")
-
                         var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.teacher)
                         var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 130, 130, false)
 
-//                        photoRef.getFile(localFile).addOnSuccessListener{
-//
-//                            var uri = Uri.fromFile(localFile)
-//                            var bitmapPerson = MediaStore.Images.Media.getBitmap(activity!!.contentResolver,uri)
-//                            resizeBitmap =  Bitmap.createScaledBitmap(bitmapPerson, 140, 140, false)
-//                        }
                         googleMap.addMarker(MarkerOptions().position(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))).setTag(dataTutor)
-//                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble()), 14F))
+//                      googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble()), 14F))
                     }
                 }
                 if (count == 0){
@@ -357,13 +352,9 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
                 var infoData : Member = marker.getTag() as Member
                 val v = layoutInflater.inflate(R.layout.info_window, null)
-//                var imageProfile = v.findViewById<View>(R.id.imgProfie) as ImageView
                 val fName = v.findViewById(R.id.name) as TextView
                 val lName = v.findViewById(R.id.lastname) as TextView
                 val status = v.findViewById(R.id.status) as TextView
-
-//                var photoRef = storageReference.child("photo/"+dataTutor.id)
-//                var localFile = File.createTempFile("images", "jpg")
 
                 fName.text = "FirstName : " + infoData.name
                 lName.text = "LastName : " + infoData.lastname
@@ -395,16 +386,29 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
         val requestBtn = view.findViewById<View>(R.id.requestBtn) as Button
         val cancelBtn = view.findViewById<View>(R.id.cancelBtn) as Button
 
+        val photoRef = storageReference!!.child("photo/"+ infoData.id)
+        val localFile = File.createTempFile("images", "jpg")
+            photoRef.getFile(localFile).addOnSuccessListener(OnSuccessListener<Any> {
+                val uri = Uri.fromFile(localFile)
+                val bitmap = MediaStore.Images.Media.getBitmap(activity!!.contentResolver,uri)
+                var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmap, 250, 250, false)
+                img!!.setImageBitmap(resizeBitmap)
+//                googleMap.addMarker(MarkerOptions().position(LatLng(dataTutor.latitude.toDouble(), dataTutor.longitude.toDouble())).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))).setTag(dataTutor)
+            }).addOnFailureListener(OnFailureListener {
+
+            })
+
         if(infoData.status == "student"){
-            img.setImageResource(R.drawable.student)
+//            img.setImageResource(R.drawable.student)
             otherInfo.text = "School : "+ infoData.school
             requestBtn.setVisibility(View.GONE)
 
         }else{
-            img.setImageResource(R.drawable.teacher)
+//            img.setImageResource(R.drawable.teacher)
             otherInfo.text = "Subject : "+ infoData.subject
 
         }
+
         email.text = "email : "+ infoData.email
         fName.text = "FirstName : "+ infoData.name
         lName.text = "LastName : "+ infoData.lastname
