@@ -8,15 +8,16 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="94dp"
-        android:layout_height="91dp"
+        android:layout_height="94dp"
         android:layout_marginBottom="5dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"
+        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/student" />
+        app:srcCompat="@drawable/teacher" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -86,7 +87,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
