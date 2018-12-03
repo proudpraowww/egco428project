@@ -268,8 +268,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             Toast.makeText(activity!!.applicationContext, "Showing tutor", Toast.LENGTH_SHORT).show()
             addMarkerFromFireBase(mGoogleMap)
             toastShake!!.cancel()
-            vibe.vibrate(500)
-//          sensorManager!!.unregisterListener(this)
+//            vibe.vibrate(500)
+            sensorManager!!.unregisterListener(this)
         }
     }
 
