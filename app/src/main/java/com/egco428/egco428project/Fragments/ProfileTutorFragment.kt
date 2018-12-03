@@ -268,7 +268,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             historyData = mutableListOf()
 
             //get history data from firebase and show in listView
-            databaseListener = database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
+            database.child(uid).child("history").addListenerForSingleValueEvent(object: ValueEventListener{
                 override fun onCancelled(p0: DatabaseError?) {
 
                 }
