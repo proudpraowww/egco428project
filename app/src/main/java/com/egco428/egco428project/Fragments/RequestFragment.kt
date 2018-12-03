@@ -215,6 +215,8 @@ class RequestFragment: Fragment() {
             paymentBtn.setOnClickListener {
                 database.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var student_name = dataSnapshot.child(requestStudent.get(position).student_id).child("name").value.toString()
+                        var student_lastname = dataSnapshot.child(requestStudent.get(position).student_id).child("lastname").value.toString()
                         val children = dataSnapshot!!.children
                         children.forEach{
                             if(it.key.equals(requestStudent.get(position).tutor_id)){
@@ -236,7 +238,8 @@ class RequestFragment: Fragment() {
                                     val push_key = database.push().key
                                     val date = SimpleDateFormat("dd/MM/yyyy kk:mm:ss").format(Date())
                                     val historyTutor = history(push_key, it.child("name").value.toString(), it.child("lastname").value.toString(), it.child("subject").value.toString(), it.child("course_price").value.toString(), date.toString())
-                                    val historyStudent = history(push_key, requestStudent.get(position).name, requestStudent.get(position).lastname, it.child("subject").value.toString(), it.child("course_price").value.toString(), date.toString())
+                                    val historyStudent = history(push_key, student_name, student_lastname, it.child("subject").value.toString(), it.child("course_price").value.toString(), date.toString())
+
                                     database.child(requestStudent.get(position).tutor_id).child("start_time").setValue(date.toString())
                                     database.child(requestStudent.get(position).student_id).child("start_time").setValue(date.toString())
                                     database.child(requestStudent.get(position).tutor_id).child("history").child(push_key).setValue(historyStudent)

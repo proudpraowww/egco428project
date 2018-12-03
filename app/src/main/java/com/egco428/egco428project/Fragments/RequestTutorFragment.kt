@@ -158,6 +158,7 @@ class RequestTutorFragment: Fragment() {
             })
             val ft = fragmentManager!!.beginTransaction()
             ft.detach(this@RequestTutorFragment).attach(this@RequestTutorFragment).commit()
+            studentLayout.visibility = View.GONE
         }
 
         return rootView
