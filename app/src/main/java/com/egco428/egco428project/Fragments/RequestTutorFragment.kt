@@ -342,6 +342,10 @@ class RequestTutorFragment: Fragment() {
                         .child("request")
                         .child(requestTutor.get(position).student_id)
                         .removeValue()
+                database.child(requestTutor.get(position).student_id)
+                        .child("request")
+                        .child(requestTutor.get(position).tutor_id)
+                        .removeValue()
             }
 
             return rowRequest
