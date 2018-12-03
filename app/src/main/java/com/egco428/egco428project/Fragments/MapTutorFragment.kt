@@ -3,8 +3,6 @@ package com.egco428.egco428project.Fragments
 import android.app.Dialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -28,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import java.io.File
 
 
 class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
@@ -55,6 +52,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     private var databaseTutorListener:ValueEventListener? = null
     private var databaseStudentListener:ValueEventListener? = null
 
+    //set up variable, Firebase database, and check google map service
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_tutor_map, container, false)
@@ -83,6 +81,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         return rootView
     }
 
+    //check google map service
     private fun isServicesOK(): Boolean{
         Log.d("msg from isServicesOK","checking google service")
 
@@ -101,6 +100,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         return false
     }
 
+    //Google Map Ready by getMapAsync Function From onCreate
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
         addMarkerFromFireBase(mGoogleMap)
@@ -109,6 +109,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         googleMap.setOnInfoWindowClickListener(this)
     }
 
+    //add student marker
     private fun addMarkerStudentInTutorMap(mGoogleMap: GoogleMap){
 
         databaseStudentListener = database.addValueEventListener(object : ValueEventListener {
@@ -144,14 +145,13 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
 
                     studyLocation  = LatLng(studyPersonData.latitude.toDouble(), studyPersonData.longitude.toDouble())
 //
-                   /* var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
+                    var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.cash100)
                     var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
-*/
+
                     makeStudyMarkerCurrentLocation(mGoogleMap, studyLocation)
-                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker"))  //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
+                    studyMarker = mGoogleMap.addMarker(MarkerOptions().position((studyLocation)).title("marker").icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap)))  //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
                     studyMarker.setTag(studyPersonData)
                 }
-
 
             }
 
@@ -161,12 +161,10 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         })
     }
 
+    //add tutor marker
     private fun addMarkerFromFireBase(mGoogleMap: GoogleMap){
         databaseTutorListener = database.child(currentUserUid).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (isAdded){
-
-                }
                 personalData = Member(
                         dataSnapshot.child("id").value.toString(),
                         dataSnapshot.child("email").value.toString(),
@@ -190,11 +188,11 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
                 println(personalData.name)
                 var currentLocation  = LatLng(personalData.latitude.toDouble(), personalData.longitude.toDouble())
 
-                /*var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
-                var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
-*/
+//                var bitmapDefault = BitmapFactory.decodeResource(resources, R.drawable.tutor)
+//                var resizeBitmap: Bitmap =  Bitmap.createScaledBitmap(bitmapDefault, 140, 140, false)
+
                 makeUserMarkerCurrentLocation(mGoogleMap, currentLocation)
-                userMarker = mGoogleMap.addMarker(MarkerOptions().position(currentLocation).title("marker")) //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
+                userMarker = mGoogleMap.addMarker(MarkerOptions().position(currentLocation).title("marker").icon(BitmapDescriptorFactory.fromResource(R.drawable.teacher))) //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap))
                 userMarker.setTag(personalData)
             }
 
@@ -204,6 +202,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         })
     }
 
+    //update student marker
     private fun makeStudyMarkerCurrentLocation(googleMap: GoogleMap, currentLocation: LatLng){
 //        if (checkStudyMarker == 0){
 //            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 2f))
@@ -214,9 +213,10 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         checkStudyMarker = 1
     }
 
+    //update tutor marker
     private fun makeUserMarkerCurrentLocation(googleMap: GoogleMap, currentLocation: LatLng){
         if (checkMarker == 0){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 2f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 5f))
         }
         if(checkMarker > 0){
             userMarker.remove()
@@ -224,6 +224,7 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         checkMarker = 1
     }
 
+    //make custom google map infomation window
     private fun makeInfoWindowGoogleMap(googleMap: GoogleMap){
         googleMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
 
@@ -233,72 +234,59 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
 
             override fun getInfoContents(marker: Marker): View {
 
-                var dataTutor : Member = marker.getTag() as Member
+                var infoData : Member = marker.getTag() as Member
                 val v = layoutInflater.inflate(R.layout.info_window, null)
 //                var imageProfile = v.findViewById<View>(R.id.imgProfie) as ImageView
                 val fName = v.findViewById(R.id.name) as TextView
                 val lName = v.findViewById(R.id.lastname) as TextView
-                val phone = v.findViewById(R.id.phone) as TextView
+                val status = v.findViewById(R.id.status) as TextView
 
 //                var photoRef = storageReference.child("photo/"+dataTutor.id)
 //                var localFile = File.createTempFile("images", "jpg")
 
-                fName.text = "FirstName : " + dataTutor.name
-                lName.text = "LastName : " + dataTutor.lastname
-                phone.text = "Phone : " + dataTutor.phone
+                fName.text = "FirstName : " + infoData.name
+                lName.text = "LastName : " + infoData.lastname
+                status.text = "Status : " + infoData.status
 
                 return v
             }
         })
     }
 
+    //Catch event when touch google map infomation and then show detail dialog
     override fun onInfoWindowClick(marker: Marker) {
-        var dataTutor : Member = marker.getTag() as Member
+        var infoData : Member = marker.getTag() as Member
         var alreadyRequest : Int = 0
-//        Toast.makeText(this.activity ,dataX.id.toString() + dataX.msg,   Toast.LENGTH_SHORT).show()
 
         var detailDialog = AlertDialog.Builder(this.activity!!).create()
         val view = layoutInflater.inflate(R.layout.dialog_info_googlemap, null) as View
         detailDialog.setView(view)
 
+        val img = view.findViewById<View>(R.id.personalImg) as ImageView
         val email = view.findViewById<View>(R.id.email) as TextView
         val fName = view.findViewById<View>(R.id.name) as TextView
         val lName = view.findViewById<View>(R.id.lastName) as TextView
         val phone = view.findViewById<View>(R.id.phone) as TextView
         val status = view.findViewById<View>(R.id.status) as TextView
-        val subject = view.findViewById<View>(R.id.subject) as TextView
+        val otherInfo = view.findViewById<View>(R.id.otherInfo) as TextView
 
-        val requestBtn = view.findViewById<View>(R.id.requestBtn) as Button
         val cancelBtn = view.findViewById<View>(R.id.cancelBtn) as Button
+        val requestBtn = view.findViewById<View>(R.id.requestBtn) as Button
 
-        email.text = "email : "+ dataTutor.email
-        fName.text = "FirstName : "+ dataTutor.name
-        lName.text = "LastName : "+ dataTutor.lastname
-        phone.text = "Phone : "+ dataTutor.phone
-        status.text = "Status : "+ dataTutor.status
-        subject.text = "Subject : "+ dataTutor.subject
+        requestBtn.setVisibility(View.GONE)
 
-//        database.child(dataTutor.id).child("request").addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                val children = dataSnapshot!!.children
-//                children.forEach{
-//                    println(it.key)
-//                    if(it.key.toString() == currentUserUid){
-//                        println("==========================already request")
-//                        requestBtn.isEnabled = false
-//                        Toast.makeText(activity, "This tutor is already request", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            }
-//            override fun onCancelled(error: DatabaseError) {
-//                // Failed to read
-//            }
-//        })
-//
-//        requestBtn.setOnClickListener {
-//            requestBtn.isEnabled = false
-//            Toast.makeText(activity, "Request sended successful", Toast.LENGTH_SHORT).show()
-//        }
+        if (infoData.status == "student"){
+            img.setImageResource(R.drawable.student)
+            otherInfo.text = "Tutor : "+ infoData.subject
+        }else{
+            img.setImageResource(R.drawable.teacher)
+            otherInfo.text = "School : "+ infoData.subject
+        }
+        email.text = "email : "+ infoData.email
+        fName.text = "FirstName : "+ infoData.name
+        lName.text = "LastName : "+ infoData.lastname
+        phone.text = "Phone : "+ infoData.phone
+        status.text = "Status : "+ infoData.status
 
         cancelBtn.setOnClickListener{
             detailDialog.dismiss()
@@ -312,5 +300,4 @@ class MapTutorFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnInfoWindowCl
         database.removeEventListener(databaseStudentListener)
 
     }
-
 }
