@@ -1,6 +1,9 @@
 package com.egco428.egco428project.Fragments
 
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -12,10 +15,16 @@ import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.Model.RequestStudent
 import com.egco428.egco428project.Model.RequestTutor
 import com.egco428.egco428project.R
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import kotlinx.android.synthetic.main.fragment_request.*
 import kotlinx.android.synthetic.main.fragment_tutor_request.*
 import kotlinx.android.synthetic.main.row_tutor_request.view.*
+import java.io.File
 
 class RequestTutorFragment: Fragment() {
 
@@ -30,6 +39,7 @@ class RequestTutorFragment: Fragment() {
     lateinit var tutor_id: String
     lateinit var student_id: String
     lateinit var subject: String
+    lateinit var imageStudent: ImageView
     lateinit var nameStudent: TextView
     lateinit var lastnameStudent: TextView
     lateinit var subjectStudent: TextView
@@ -37,12 +47,15 @@ class RequestTutorFragment: Fragment() {
     lateinit var finishBtn: Button
     lateinit var studentLayout: ConstraintLayout
     lateinit var textLayout: ConstraintLayout
+    private var storage: FirebaseStorage? = null
+    private var storageReference: StorageReference? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         rootView = inflater.inflate(R.layout.fragment_tutor_request, container, false)
 
         requestListView = rootView!!.findViewById<ListView>(R.id.requestListView)
+        imageStudent = rootView!!.findViewById(R.id.imageStudent)
         nameStudent = rootView!!.findViewById(R.id.nameStudent)
         lastnameStudent = rootView!!.findViewById(R.id.lastnameStudent)
         subjectStudent = rootView!!.findViewById(R.id.subjectStudent)
@@ -58,6 +71,9 @@ class RequestTutorFragment: Fragment() {
             currentEmail = user.email.toString()
             uid = user.uid
         }
+
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage!!.reference
 
         database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -80,12 +96,15 @@ class RequestTutorFragment: Fragment() {
                 }
 
                 if(requestTutor.size > 0){
+
                     studentLayout!!.visibility = View.GONE
                     textLayout.visibility = View.GONE
-                    requestListView!!.adapter = RequestTutorFragment.requestListAdapter(database, currentEmail, requestTutor!!)
+                    requestListView!!.adapter = RequestTutorFragment.requestListAdapter(uid, storageReference!!, activity!!.applicationContext, database, currentEmail, requestTutor!!)
                     requestListView!!.visibility = View.VISIBLE
                 } else {
+
                     if(!tutor_study_status.equals("")){
+
                         requestListView!!.visibility = View.GONE
                         textLayout!!.visibility = View.GONE
                         studentLayout!!.visibility = View.VISIBLE
@@ -116,6 +135,18 @@ class RequestTutorFragment: Fragment() {
                                         lastnameStudent.text ="Lastname : \t" + it.child("lastname").value.toString()
                                         subjectStudent.text = "Subject : \t" + subject
                                         timeStudent.text = "Start Time : \t" + it.child("start_time").value.toString()
+
+                                        val photoRef = storageReference!!.child("photo/"+student_id)
+                                        val localFile = File.createTempFile("images", "jpg")
+                                        photoRef.getFile(localFile)
+                                                .addOnSuccessListener(OnSuccessListener<Any> {
+                                                    val uri = Uri.fromFile(localFile)
+                                                    val bitmap = MediaStore.Images.Media.getBitmap(activity!!.applicationContext.contentResolver,uri)
+                                                    imageStudent.setImageBitmap(bitmap)
+
+                                                }).addOnFailureListener(OnFailureListener {
+
+                                                })
                                     }
                                 }
                             }
@@ -124,6 +155,7 @@ class RequestTutorFragment: Fragment() {
                             }
                         })
                     } else {
+
                         requestListView!!.visibility = View.GONE
                         studentLayout!!.visibility = View.GONE
                         textLayout.visibility = View.VISIBLE
@@ -136,7 +168,7 @@ class RequestTutorFragment: Fragment() {
         })
 
         if(requestTutor != null){
-            requestListView!!.adapter = RequestTutorFragment.requestListAdapter(database, currentEmail, requestTutor!!)
+            requestListView!!.adapter = RequestTutorFragment.requestListAdapter(uid, storageReference!!, activity!!.applicationContext, database, currentEmail, requestTutor!!)
         }
 
         finishBtn.setOnClickListener{
@@ -156,14 +188,14 @@ class RequestTutorFragment: Fragment() {
                     // Failed to read
                 }
             })
-            val ft = fragmentManager!!.beginTransaction()
-            ft.detach(this@RequestTutorFragment).attach(this@RequestTutorFragment).commit()
+            studentLayout.visibility = View.GONE
+            textLayout.visibility = View.VISIBLE
         }
 
         return rootView
     }
 
-    private class requestListAdapter(var database: DatabaseReference, var currentEmail: String, var requestTutor: ArrayList<RequestTutor>) : BaseAdapter() {
+    private class requestListAdapter(var uid: String, var storageReference: StorageReference, var context: Context, var database: DatabaseReference, var currentEmail: String, var requestTutor: ArrayList<RequestTutor>) : BaseAdapter() {
 
         lateinit var student_study_status: String
         lateinit var tutor_response: String
@@ -198,7 +230,6 @@ class RequestTutorFragment: Fragment() {
             }
 
             val viewHolder = rowRequest.tag as ViewHolder
-            viewHolder.imageView.setImageResource(R.mipmap.ic_launcher)
             viewHolder.nameText.text = requestTutor.get(position).name
             viewHolder.lastnameText.text = requestTutor.get(position).lastname
             viewHolder.courseText.text = "School : " + requestTutor.get(position).school
@@ -213,6 +244,19 @@ class RequestTutorFragment: Fragment() {
             } else {
                 viewHolder.waitingLayout.visibility = View.GONE
             }
+
+            val photoRef = storageReference!!.child("photo/"+requestTutor.get(position).student_id)
+
+            val localFile = File.createTempFile("images", "jpg")
+            photoRef.getFile(localFile)
+                    .addOnSuccessListener(OnSuccessListener<Any> {
+                        val uri = Uri.fromFile(localFile)
+                        val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver,uri)
+                        viewHolder.imageView.setImageBitmap(bitmap)
+
+                    }).addOnFailureListener(OnFailureListener {
+
+                    })
 
             rowRequest.setOnClickListener {
                 Log.d("Click", "row " + requestTutor.get(position).name)

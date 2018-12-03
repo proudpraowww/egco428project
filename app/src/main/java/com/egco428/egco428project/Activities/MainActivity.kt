@@ -11,6 +11,7 @@ import com.egco428.egco428project.Fragments.ProfileFragment
 import com.egco428.egco428project.Fragments.RequestFragment
 import com.egco428.egco428project.Model.Member
 import com.egco428.egco428project.R
+import com.egco428.egco428project.R.id.profileNavigation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         pushFragment(ProfileFragment())
         mapNavigation.setOnClickListener({
             bottomView.selectedItemId = R.id.mapNavigation
+            mapNavigation.setImageResource(R.drawable.worldwidebold)
         })
 
         mAuth = FirebaseAuth.getInstance();
@@ -69,14 +71,17 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.profileNavigation -> {
                 pushFragment(ProfileFragment())
+                mapNavigation.setImageResource(R.drawable.worldwide)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.mapNavigation -> {
                 pushFragment(MapFragment())
+
                 return@OnNavigationItemSelectedListener true
             }
             R.id.requestNavigation -> {
                 pushFragment(RequestFragment())
+                mapNavigation.setImageResource(R.drawable.worldwide)
                 return@OnNavigationItemSelectedListener true
             }
         }
