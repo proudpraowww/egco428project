@@ -268,7 +268,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
             historyData = mutableListOf()
 
             //get history data from firebase and show in listView
-            database.child(uid).child("history").addValueEventListener(object: ValueEventListener{
+            database.child(uid).child("history").addListenerForSingleValueEvent(object: ValueEventListener{
                 override fun onCancelled(p0: DatabaseError?) {
 
                 }
@@ -468,7 +468,7 @@ class ProfileTutorFragment: Fragment(), View.OnClickListener {
         }
 
         //locationManager!!.requestLocationUpdates("gps",1000,0f,locationListener)
-        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0f, locationListener)
+        locationManager!!.requestLocationUpdates("gps", 1000, 0f, locationListener)
 
 
 }
