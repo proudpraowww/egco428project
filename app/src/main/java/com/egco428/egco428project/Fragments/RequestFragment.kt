@@ -333,6 +333,10 @@ class RequestFragment: Fragment() {
                         .child("request")
                         .child(requestStudent.get(position).tutor_id)
                         .removeValue()
+                database.child(requestStudent.get(position).tutor_id)
+                        .child("request")
+                        .child(requestStudent.get(position).student_id)
+                        .removeValue()
             }
 
             return rowRequest
